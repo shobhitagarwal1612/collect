@@ -16,7 +16,7 @@
 
 package org.odk.collect.android.preferences;
 
-import android.app.AlertDialog;
+import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -26,6 +26,7 @@ import android.view.View;
 import android.widget.CheckBox;
 
 import org.odk.collect.android.R;
+import org.odk.collect.android.fragments.CustomDialogFragment;
 import org.odk.collect.android.utilities.ResetUtility;
 import org.odk.collect.android.utilities.ToastUtils;
 
@@ -181,24 +182,16 @@ public class ResetDialogPreference extends DialogPreference {
     }
 
     private void showResultDialog(final String resultMessage) {
-        ((AdminPreferencesActivity) context).runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                AlertDialog.Builder b = new AlertDialog.Builder(getContext());
-                b.setTitle(getContext().getString(R.string.reset_app_state_result));
-                b.setMessage(resultMessage);
-                b.setCancelable(false);
-                b.setIcon(android.R.drawable.ic_dialog_info);
-                b.setPositiveButton(getContext().getString(R.string.ok), new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.dismiss();
-                        ((AdminPreferencesActivity) context).recreate();
-                    }
-                });
-                AlertDialog alertDialog = b.create();
-                alertDialog.show();
-            }
-        });
+        CustomDialogFragment.ODKDialogBundle.Builder bundle = new CustomDialogFragment.ODKDialogBundle.Builder();
+        bundle
+                .setIcon(android.R.drawable.ic_dialog_info)
+                .setDialogTitle(getContext().getString(R.string.reset_app_state_result))
+                .setDialogMessage(resultMessage)
+                .setRightButtonText(getContext().getString(R.string.ok))
+                .setRightButtonAction(CustomDialogFragment.Action.RECREATE)
+                .setCancelable(false);
+
+        CustomDialogFragment customDialogFragment = CustomDialogFragment.newInstance(bundle.build());
+        customDialogFragment.show(((Activity) getContext()).getFragmentManager(), "CustomDialogFragment");
     }
 }
