@@ -10,8 +10,6 @@ import java.io.Serializable;
 
 public class CustomDialogFragment extends DialogFragment {
 
-    public enum Action {RECREATE}
-
     public static final String CUSTOM_DIALOG_BUNDLE = "customDialogBundle";
 
     public static CustomDialogFragment newInstance(ODKDialogBundle odkDialogBundle) {
@@ -64,6 +62,10 @@ public class CustomDialogFragment extends DialogFragment {
         }
     }
 
+    public enum Action {
+        RECREATE
+    }
+
     public static class ODKDialogBundle implements Serializable {
         private String dialogTitle;
         private String dialogMessage;
@@ -75,7 +77,7 @@ public class CustomDialogFragment extends DialogFragment {
 
         private boolean cancelable;
 
-        private int mIcon;
+        private int icon;
 
         ODKDialogBundle(Builder builder) {
             dialogTitle = builder.dialogTitle;
@@ -85,7 +87,7 @@ public class CustomDialogFragment extends DialogFragment {
             leftButtonAction = builder.leftButtonAction;
             rightButtonAction = builder.rightButtonAction;
             cancelable = builder.cancelable;
-            mIcon = builder.icon;
+            icon = builder.icon;
         }
 
         public String getDialogTitle() {
@@ -117,7 +119,7 @@ public class CustomDialogFragment extends DialogFragment {
         }
 
         public Integer getIcon() {
-            return mIcon;
+            return icon;
         }
 
         public static class Builder {
