@@ -226,8 +226,8 @@ public class NewMainActivity extends FormListActivity implements DiskSyncListene
         Intent intent = new Intent(this, InstanceChooserList.class);
         intent.putExtra(ApplicationConstants.BundleKeys.FORM_MODE,
                 ApplicationConstants.FormModes.EDIT_SAVED);
+        intent.putExtra(FormsProviderAPI.FormsColumns.JR_FORM_ID, formID);
         startActivity(intent);
-
     }
 
     @Override
@@ -235,7 +235,7 @@ public class NewMainActivity extends FormListActivity implements DiskSyncListene
         Collect.getInstance().getActivityLogger()
                 .logAction(this, "uploadForms", "click");
         Intent intent = new Intent(this, InstanceUploaderList.class);
+        intent.putExtra(FormsProviderAPI.FormsColumns.JR_FORM_ID, formID);
         startActivity(intent);
-
     }
 }

@@ -32,6 +32,7 @@ import org.odk.collect.android.adapters.ViewSentListAdapter;
 import org.odk.collect.android.application.Collect;
 import org.odk.collect.android.dao.InstancesDao;
 import org.odk.collect.android.listeners.DiskSyncListener;
+import org.odk.collect.android.provider.FormsProviderAPI;
 import org.odk.collect.android.provider.InstanceProviderAPI;
 import org.odk.collect.android.provider.InstanceProviderAPI.InstanceColumns;
 import org.odk.collect.android.tasks.InstanceSyncTask;
@@ -213,9 +214,11 @@ public class InstanceChooserList extends InstanceListActivity implements DiskSyn
     }
 
     private Cursor getCursor() {
+        String formID = getIntent().getExtras().getString(FormsProviderAPI.FormsColumns.JR_FORM_ID);
+
         Cursor cursor;
         if (editMode) {
-            cursor = new InstancesDao().getUnsentInstancesCursor(getFilterText(), getSortingOrder());
+            cursor = new InstancesDao().getUnsentInstancesCursor(formID, getFilterText(), getSortingOrder());
         } else {
             cursor = new InstancesDao().getSentInstancesCursor(getFilterText(), getSortingOrder());
         }

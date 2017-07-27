@@ -58,7 +58,7 @@
                     android:layout_weight="1"
                     android:drawableLeft="@drawable/ic_attach_file_black_24dp"
                     android:drawableStart="@drawable/ic_attach_file_black_24dp"
-                    android:text="Edit saved (10)"
+                    android:text="Edit saved"
                     android:textAppearance="?android:attr/textAppearanceSmall" />
 
                 <View
@@ -74,7 +74,7 @@
                     android:layout_weight="1"
                     android:drawableLeft="@drawable/ic_play_arrow_black_24dp"
                     android:drawableStart="@drawable/ic_play_arrow_black_24dp"
-                    android:text="Send finalized (1)"
+                    android:text="Send finalized"
                     android:textAppearance="?android:attr/textAppearanceSmall" />
             </LinearLayout>
 

@@ -40,6 +40,7 @@ import org.odk.collect.android.listeners.DiskSyncListener;
 import org.odk.collect.android.preferences.GeneralSharedPreferences;
 import org.odk.collect.android.preferences.PreferenceKeys;
 import org.odk.collect.android.preferences.PreferencesActivity;
+import org.odk.collect.android.provider.FormsProviderAPI;
 import org.odk.collect.android.provider.InstanceProviderAPI.InstanceColumns;
 import org.odk.collect.android.receivers.NetworkReceiver;
 import org.odk.collect.android.tasks.InstanceSyncTask;
@@ -319,11 +320,13 @@ public class InstanceUploaderList extends InstanceListActivity
     }
 
     private Cursor getCursor() {
+        String formID = getIntent().getExtras().getString(FormsProviderAPI.FormsColumns.JR_FORM_ID);
+
         Cursor cursor;
         if (showAllMode) {
-            cursor = instancesDao.getCompletedUndeletedInstancesCursor(getFilterText(), getSortingOrder());
+            cursor = instancesDao.getCompletedUndeletedInstancesCursor(formID, getFilterText(), getSortingOrder());
         } else {
-            cursor = instancesDao.getFinalizedInstancesCursor(getFilterText(), getSortingOrder());
+            cursor = instancesDao.getFinalizedInstancesCursor(formID, getFilterText(), getSortingOrder());
         }
 
         return cursor;
