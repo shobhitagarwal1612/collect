@@ -8,7 +8,9 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
 import android.support.v7.widget.CardView;
 import android.view.View;
 import android.view.animation.Animation;
@@ -59,6 +61,8 @@ public class NewMainActivity extends FormListActivity implements DiskSyncListene
     private int completedCount;
     private int savedCount;
     private int viewSentCount;
+    private CoordinatorLayout coordinatorLayout;
+    private String status;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -78,11 +82,6 @@ public class NewMainActivity extends FormListActivity implements DiskSyncListene
 
         setupAdapter();
 
-        if (savedInstanceState != null && savedInstanceState.containsKey(syncMsgKey)) {
-            TextView tv = (TextView) findViewById(R.id.status_text);
-            tv.setText((savedInstanceState.getString(syncMsgKey)).trim());
-        }
-
         // DiskSyncTask checks the disk for any forms not already in the content provider
         // that is, put here by dragging and dropping onto the SDCard
         diskSyncTask = (DiskSyncTask) getLastCustomNonConfigurationInstance();
@@ -96,6 +95,8 @@ public class NewMainActivity extends FormListActivity implements DiskSyncListene
                 getString(R.string.sort_by_name_asc), getString(R.string.sort_by_name_desc),
                 getString(R.string.sort_by_date_asc), getString(R.string.sort_by_date_desc),
         };
+
+        coordinatorLayout = (CoordinatorLayout) findViewById(R.id.coordinator);
 
         fab = (FloatingActionButton) findViewById(R.id.fab);
         fab1 = (FloatingActionButton) findViewById(R.id.fab1);
@@ -120,6 +121,14 @@ public class NewMainActivity extends FormListActivity implements DiskSyncListene
 
         frameLayout.getBackground().setAlpha(0);
         frameLayout.setClickable(false);
+
+        if (savedInstanceState != null && savedInstanceState.containsKey(syncMsgKey)) {
+            status = (savedInstanceState.getString(syncMsgKey)).trim();
+            Snackbar.make(fab, status, Snackbar.LENGTH_LONG).show();
+        } else {
+            status = getString(R.string.form_scan_starting);
+            Snackbar.make(fab, status, Snackbar.LENGTH_LONG).show();
+        }
     }
 
     @Override
@@ -131,8 +140,7 @@ public class NewMainActivity extends FormListActivity implements DiskSyncListene
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        TextView tv = (TextView) findViewById(R.id.status_text);
-        outState.putString(syncMsgKey, tv.getText().toString().trim());
+        outState.putString(syncMsgKey, status);
     }
 
     /**
@@ -201,8 +209,8 @@ public class NewMainActivity extends FormListActivity implements DiskSyncListene
     @Override
     public void syncComplete(String result) {
         Timber.i("Disk sync task complete");
-        TextView tv = (TextView) findViewById(R.id.status_text);
-        tv.setText(result.trim());
+        status = result.trim();
+        Snackbar.make(fab, status, Snackbar.LENGTH_LONG).show();
     }
 
     private void setupAdapter() {

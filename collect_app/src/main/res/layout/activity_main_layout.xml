@@ -13,7 +13,8 @@ License for the specific language governing permissions and limitations under
 the License.
 -->
 
-<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.design.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/coordinator"
     android:layout_width="match_parent"
@@ -29,58 +30,45 @@ the License.
             android:layout_height="match_parent">
 
             <!-- Toolbar -->
-        <include layout="@layout/toolbar" />
+            <include layout="@layout/toolbar"/>
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_below="@+id/toolbar"
-            android:background="#eee"
-            android:orientation="vertical">
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_below="@+id/toolbar"
+                android:background="#eee"
+                android:orientation="vertical">
 
-            <TextView
-                android:id="@+id/status_text"
+                <include layout="@layout/search_box_layout"/>
+
+                <ListView
+                    android:id="@id/android:list"
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_marginTop="@dimen/margin_small"
+                    android:layout_weight="1"
+                    android:divider="@android:color/transparent"/>
+
+                <TextView
+                    android:id="@android:id/empty"
+                    style="@style/emptyViewStyle"
+                    android:text="@string/no_items_display_forms"/>
+            </LinearLayout>
+
+            <include
+                layout="@layout/toolbar_action_bar_shadow"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="#DDDDDD"
-                android:paddingBottom="4dip"
-                android:paddingEnd="8dip"
-                android:paddingLeft="8dip"
-                android:paddingRight="8dip"
-                android:paddingStart="8dip"
-                android:paddingTop="4dip"
-                android:text="@string/form_scan_starting"
-                android:textSize="14sp" />
+                android:layout_below="@id/toolbar"/>
+        </RelativeLayout>
 
-            <include layout="@layout/search_box_layout" />
-
-            <ListView
-                android:id="@id/android:list"
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="1"
-                android:divider="@android:color/transparent" />
-
-            <TextView
-                android:id="@android:id/empty"
-                style="@style/emptyViewStyle"
-                android:text="@string/no_items_display_forms" />
-        </LinearLayout>
-
-        <include
-            layout="@layout/toolbar_action_bar_shadow"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/toolbar" />
-    </RelativeLayout>
-
-    <!-- Side navigation drawer UI -->
-    <ListView
-        android:id="@+id/sortingMenu"
-        android:layout_width="250dp"
-        android:layout_height="match_parent"
-        android:layout_gravity="end"
-        android:background="#DDDDDD" />
+        <!-- Side navigation drawer UI -->
+        <ListView
+            android:id="@+id/sortingMenu"
+            android:layout_width="250dp"
+            android:layout_height="match_parent"
+            android:layout_gravity="end"
+            android:background="#DDDDDD"/>
 
     </android.support.v4.widget.DrawerLayout>
 
@@ -111,7 +99,7 @@ the License.
                 android:layout_height="wrap_content"
                 android:padding="6dp"
                 android:text="@string/from_aggregate"
-                android:textSize="@dimen/text_size_small" />
+                android:textSize="@dimen/text_size_small"/>
 
         </android.support.v7.widget.CardView>
 
@@ -122,13 +110,13 @@ the License.
             android:layout_gravity="bottom|end"
             android:layout_marginBottom="160dp"
             android:layout_marginEnd="30dp"
-            android:clickable="false"
             android:layout_marginRight="30dp"
+            android:clickable="false"
             android:src="@drawable/ic_cloud_black_24dp"
             android:visibility="invisible"
             app:backgroundTint="@color/white"
             app:elevation="6dp"
-            app:pressedTranslationZ="12dp" />
+            app:pressedTranslationZ="12dp"/>
 
         <android.support.v7.widget.CardView
             android:id="@+id/cv_gdrive"
@@ -151,7 +139,7 @@ the License.
                 android:layout_height="wrap_content"
                 android:padding="6dp"
                 android:text="@string/from_google_drive"
-                android:textSize="@dimen/text_size_small" />
+                android:textSize="@dimen/text_size_small"/>
 
         </android.support.v7.widget.CardView>
 
@@ -161,25 +149,25 @@ the License.
             android:layout_height="wrap_content"
             android:layout_gravity="bottom|end"
             android:layout_marginBottom="90dp"
-            android:clickable="false"
             android:layout_marginEnd="30dp"
             android:layout_marginRight="30dp"
+            android:clickable="false"
             android:src="@drawable/ic_insert_drive_file_black_24dp"
             android:visibility="invisible"
             app:backgroundTint="@color/white"
             app:elevation="6dp"
-            app:pressedTranslationZ="12dp" />
+            app:pressedTranslationZ="12dp"/>
 
-        <android.support.design.widget.FloatingActionButton
-            android:id="@+id/fab"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="bottom|end"
-            android:layout_margin="24dp"
-            android:src="@drawable/ic_add_white"
-            app:backgroundTint="@color/colorFAB"
-            app:elevation="6dp"
-            app:pressedTranslationZ="12dp" />
     </FrameLayout>
 
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/fab"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_margin="24dp"
+        android:src="@drawable/ic_add_white"
+        app:backgroundTint="@color/colorFAB"
+        app:elevation="6dp"
+        app:pressedTranslationZ="12dp"/>
 </android.support.design.widget.CoordinatorLayout>
