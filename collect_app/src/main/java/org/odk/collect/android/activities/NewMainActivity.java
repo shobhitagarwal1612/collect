@@ -67,7 +67,7 @@ public class NewMainActivity extends FormListActivity implements DiskSyncListene
         setContentView(R.layout.activity_main_layout);
         super.onCreate(savedInstanceState);
 
-        setTitle(getString(R.string.enter_data));
+        setTitle(getString(R.string.app_name));
 
         setupAdapter();
 
@@ -97,6 +97,8 @@ public class NewMainActivity extends FormListActivity implements DiskSyncListene
         cardViewAggregate = (CardView) findViewById(R.id.cv_aggregate);
         cardViewGoogleDrive = (CardView) findViewById(R.id.cv_gdrive);
 
+        frameLayout = (FrameLayout) findViewById(R.id.frame_layout);
+
         fabOpen = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.fab_open);
         fabClose = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.fab_close);
         rotateForward = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.rotate_forward);
@@ -105,9 +107,12 @@ public class NewMainActivity extends FormListActivity implements DiskSyncListene
         fab.setOnClickListener(this);
         fab1.setOnClickListener(this);
         fab2.setOnClickListener(this);
+        frameLayout.setOnClickListener(this);
+        cardViewAggregate.setOnClickListener(this);
+        cardViewGoogleDrive.setOnClickListener(this);
 
-        frameLayout = (FrameLayout) findViewById(R.id.frame_layout);
         frameLayout.getBackground().setAlpha(0);
+        frameLayout.setClickable(false);
     }
 
 
@@ -283,6 +288,7 @@ public class NewMainActivity extends FormListActivity implements DiskSyncListene
     public void animateFAB() {
 
         if (isFabOpen) {
+            frameLayout.setClickable(false);
             frameLayout.getBackground().setAlpha(0);
             fab.startAnimation(rotateBackward);
             fab1.startAnimation(fabClose);
@@ -293,6 +299,7 @@ public class NewMainActivity extends FormListActivity implements DiskSyncListene
             fab2.setClickable(false);
             isFabOpen = false;
         } else {
+            frameLayout.setClickable(true);
             frameLayout.getBackground().setAlpha(240);
             fab.startAnimation(rotateForward);
             fab1.startAnimation(fabOpen);
@@ -309,10 +316,8 @@ public class NewMainActivity extends FormListActivity implements DiskSyncListene
     public void onClick(View v) {
         int id = v.getId();
         switch (id) {
-            case R.id.fab:
-                animateFAB();
-                break;
             case R.id.fab1:
+            case R.id.cv_gdrive:
                 Collect.getInstance().getActivityLogger()
                         .logAction(this, "downloadBlankForms: google drive", "click");
                 Intent i;
@@ -326,18 +331,17 @@ public class NewMainActivity extends FormListActivity implements DiskSyncListene
                 startActivity(i);
                 break;
             case R.id.fab2:
-
+            case R.id.cv_aggregate:
                 Collect.getInstance().getActivityLogger()
                         .logAction(this, "downloadBlankForms: aggregate", "click");
                 i = new Intent(getApplicationContext(),
                         FormDownloadList.class);
                 startActivity(i);
                 break;
+            case R.id.fab:
+            case R.id.frame_layout:
+                animateFAB();
+                break;
         }
     }
-
-    public void clear(View view) {
-        animateFAB();
-    }
-
 }
