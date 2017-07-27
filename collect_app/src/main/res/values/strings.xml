@@ -516,4 +516,6 @@
     <string name="search">Search</string>
     <string name="edit_saved">Edit saved</string>
     <string name="send_finalized">Send finalized</string>
+    <string name="from_aggregate">From Aggregate</string>
+    <string name="from_google_drive">From Google Drive</string>
 </resources>

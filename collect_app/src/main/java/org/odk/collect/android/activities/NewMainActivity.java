@@ -8,8 +8,13 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
+import android.support.v7.widget.CardView;
 import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.AdapterView;
+import android.widget.FrameLayout;
 import android.widget.TextView;
 
 import org.odk.collect.android.R;
@@ -21,6 +26,7 @@ import org.odk.collect.android.listeners.FormClickListener;
 import org.odk.collect.android.provider.FormsProviderAPI;
 import org.odk.collect.android.tasks.DiskSyncTask;
 import org.odk.collect.android.utilities.ApplicationConstants;
+import org.odk.collect.android.utilities.PlayServicesUtil;
 
 import timber.log.Timber;
 
@@ -28,13 +34,24 @@ import timber.log.Timber;
  * Created by shobhit on 26/7/17.
  */
 
-public class NewMainActivity extends FormListActivity implements DiskSyncListener, AdapterView.OnItemClickListener, FormClickListener {
+public class NewMainActivity extends FormListActivity implements DiskSyncListener, AdapterView.OnItemClickListener, FormClickListener, View.OnClickListener {
     private static final String FORM_CHOOSER_LIST_SORTING_ORDER = "formChooserListSortingOrder";
 
     private static final boolean EXIT = true;
     private static final String syncMsgKey = "syncmsgkey";
 
     private DiskSyncTask diskSyncTask;
+    private FloatingActionButton fab;
+    private FloatingActionButton fab1;
+    private FloatingActionButton fab2;
+    private Animation fabOpen;
+    private Animation fabClose;
+    private Animation rotateForward;
+    private Animation rotateBackward;
+    private boolean isFabOpen = false;
+    private CardView cardViewAggregate;
+    private CardView cardViewGoogleDrive;
+    private FrameLayout frameLayout;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -72,6 +89,25 @@ public class NewMainActivity extends FormListActivity implements DiskSyncListene
                 getString(R.string.sort_by_name_asc), getString(R.string.sort_by_name_desc),
                 getString(R.string.sort_by_date_asc), getString(R.string.sort_by_date_desc),
         };
+
+        fab = (FloatingActionButton) findViewById(R.id.fab);
+        fab1 = (FloatingActionButton) findViewById(R.id.fab1);
+        fab2 = (FloatingActionButton) findViewById(R.id.fab2);
+
+        cardViewAggregate = (CardView) findViewById(R.id.cv_aggregate);
+        cardViewGoogleDrive = (CardView) findViewById(R.id.cv_gdrive);
+
+        fabOpen = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.fab_open);
+        fabClose = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.fab_close);
+        rotateForward = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.rotate_forward);
+        rotateBackward = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.rotate_backward);
+
+        fab.setOnClickListener(this);
+        fab1.setOnClickListener(this);
+        fab2.setOnClickListener(this);
+
+        frameLayout = (FrameLayout) findViewById(R.id.frame_layout);
+        frameLayout.getBackground().setAlpha(0);
     }
 
 
@@ -131,6 +167,11 @@ public class NewMainActivity extends FormListActivity implements DiskSyncListene
     @Override
     protected void onPause() {
         diskSyncTask.setDiskSyncListener(null);
+
+        if (isFabOpen) {
+            animateFAB();
+        }
+
         super.onPause();
     }
 
@@ -238,4 +279,65 @@ public class NewMainActivity extends FormListActivity implements DiskSyncListene
         intent.putExtra(FormsProviderAPI.FormsColumns.JR_FORM_ID, formID);
         startActivity(intent);
     }
+
+    public void animateFAB() {
+
+        if (isFabOpen) {
+            frameLayout.getBackground().setAlpha(0);
+            fab.startAnimation(rotateBackward);
+            fab1.startAnimation(fabClose);
+            cardViewAggregate.startAnimation(fabClose);
+            fab2.startAnimation(fabClose);
+            cardViewGoogleDrive.startAnimation(fabClose);
+            fab1.setClickable(false);
+            fab2.setClickable(false);
+            isFabOpen = false;
+        } else {
+            frameLayout.getBackground().setAlpha(240);
+            fab.startAnimation(rotateForward);
+            fab1.startAnimation(fabOpen);
+            cardViewAggregate.startAnimation(fabOpen);
+            fab2.startAnimation(fabOpen);
+            cardViewGoogleDrive.startAnimation(fabOpen);
+            fab1.setClickable(true);
+            fab2.setClickable(true);
+            isFabOpen = true;
+        }
+    }
+
+    @Override
+    public void onClick(View v) {
+        int id = v.getId();
+        switch (id) {
+            case R.id.fab:
+                animateFAB();
+                break;
+            case R.id.fab1:
+                Collect.getInstance().getActivityLogger()
+                        .logAction(this, "downloadBlankForms: google drive", "click");
+                Intent i;
+                if (PlayServicesUtil.isGooglePlayServicesAvailable(this)) {
+                    i = new Intent(getApplicationContext(),
+                            GoogleDriveActivity.class);
+                } else {
+                    PlayServicesUtil.showGooglePlayServicesAvailabilityErrorDialog(this);
+                    return;
+                }
+                startActivity(i);
+                break;
+            case R.id.fab2:
+
+                Collect.getInstance().getActivityLogger()
+                        .logAction(this, "downloadBlankForms: aggregate", "click");
+                i = new Intent(getApplicationContext(),
+                        FormDownloadList.class);
+                startActivity(i);
+                break;
+        }
+    }
+
+    public void clear(View view) {
+        animateFAB();
+    }
+
 }
