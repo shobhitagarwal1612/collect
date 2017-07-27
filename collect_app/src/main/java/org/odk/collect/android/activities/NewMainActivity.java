@@ -21,6 +21,7 @@ import org.odk.collect.android.R;
 import org.odk.collect.android.adapters.FormCursorAdapter;
 import org.odk.collect.android.application.Collect;
 import org.odk.collect.android.dao.FormsDao;
+import org.odk.collect.android.dao.InstancesDao;
 import org.odk.collect.android.listeners.DiskSyncListener;
 import org.odk.collect.android.listeners.FormClickListener;
 import org.odk.collect.android.provider.FormsProviderAPI;
@@ -52,6 +53,12 @@ public class NewMainActivity extends FormListActivity implements DiskSyncListene
     private CardView cardViewAggregate;
     private CardView cardViewGoogleDrive;
     private FrameLayout frameLayout;
+    private Cursor finalizedCursor;
+    private Cursor savedCursor;
+    private Cursor viewSentCursor;
+    private int completedCount;
+    private int savedCount;
+    private int viewSentCount;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -115,13 +122,11 @@ public class NewMainActivity extends FormListActivity implements DiskSyncListene
         frameLayout.setClickable(false);
     }
 
-
     @Override
     public Object onRetainCustomNonConfigurationInstance() {
         // pass the thread on restart
         return diskSyncTask;
     }
-
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
@@ -129,7 +134,6 @@ public class NewMainActivity extends FormListActivity implements DiskSyncListene
         TextView tv = (TextView) findViewById(R.id.status_text);
         outState.putString(syncMsgKey, tv.getText().toString().trim());
     }
-
 
     /**
      * Stores the path of selected form and finishes.
@@ -157,7 +161,6 @@ public class NewMainActivity extends FormListActivity implements DiskSyncListene
         finish();
     }
 
-
     @Override
     protected void onResume() {
         diskSyncTask.setDiskSyncListener(this);
@@ -167,7 +170,6 @@ public class NewMainActivity extends FormListActivity implements DiskSyncListene
             syncComplete(diskSyncTask.getStatusMessage());
         }
     }
-
 
     @Override
     protected void onPause() {
@@ -180,7 +182,6 @@ public class NewMainActivity extends FormListActivity implements DiskSyncListene
         super.onPause();
     }
 
-
     @Override
     protected void onStart() {
         super.onStart();
@@ -192,7 +193,6 @@ public class NewMainActivity extends FormListActivity implements DiskSyncListene
         Collect.getInstance().getActivityLogger().logOnStop(this);
         super.onStop();
     }
-
 
     /**
      * Called by DiskSyncTask when the task is finished
@@ -285,6 +285,52 @@ public class NewMainActivity extends FormListActivity implements DiskSyncListene
         startActivity(intent);
     }
 
+    @Override
+    public void updateCount(View view, String formID) {
+
+        InstancesDao instancesDao = new InstancesDao();
+
+        // count for finalized instances
+        try {
+            finalizedCursor = instancesDao.getFinalizedInstancesCursor(formID);
+        } catch (Exception e) {
+            createErrorDialog(e.getMessage(), EXIT);
+            return;
+        }
+
+        if (finalizedCursor != null) {
+            startManagingCursor(finalizedCursor);
+        }
+        completedCount = finalizedCursor != null ? finalizedCursor.getCount() : 0;
+
+        // count for saved instances
+        try {
+            savedCursor = instancesDao.getUnsentInstancesCursor(formID);
+        } catch (Exception e) {
+            createErrorDialog(e.getMessage(), EXIT);
+            return;
+        }
+
+        if (savedCursor != null) {
+            startManagingCursor(savedCursor);
+        }
+        savedCount = savedCursor != null ? savedCursor.getCount() : 0;
+
+        //count for view sent form
+        try {
+            viewSentCursor = instancesDao.getSentInstancesCursor();
+        } catch (Exception e) {
+            createErrorDialog(e.getMessage(), EXIT);
+            return;
+        }
+        if (viewSentCursor != null) {
+            startManagingCursor(viewSentCursor);
+        }
+        viewSentCount = viewSentCursor != null ? viewSentCursor.getCount() : 0;
+
+        updateButtons(view);
+    }
+
     public void animateFAB() {
 
         if (isFabOpen) {
@@ -346,6 +392,57 @@ public class NewMainActivity extends FormListActivity implements DiskSyncListene
             case R.id.frame_layout:
                 animateFAB();
                 break;
+        }
+    }
+
+    private void updateButtons(View view) {
+        TextView editSaved = (TextView) view.findViewById(R.id.edit_saved);
+        TextView sendFinalized = (TextView) view.findViewById(R.id.send_finalized);
+
+        if (finalizedCursor != null && !finalizedCursor.isClosed()) {
+            finalizedCursor.requery();
+            completedCount = finalizedCursor.getCount();
+            if (completedCount > 0) {
+                sendFinalized.setText(getString(R.string.send_finalized) + "\n(" + completedCount + ")");
+            } else {
+                sendFinalized.setOnClickListener(null);
+                sendFinalized.setText(getString(R.string.send_finalized));
+            }
+        } else {
+            sendFinalized.setOnClickListener(null);
+            sendFinalized.setText(getString(R.string.send_finalized));
+            Timber.d("Cannot update \"Send Finalized\" button label since the database is closed. "
+                    + "Perhaps the app is running in the background?");
+        }
+
+        if (savedCursor != null && !savedCursor.isClosed()) {
+            savedCursor.requery();
+            savedCount = savedCursor.getCount();
+            if (savedCount > 0) {
+                editSaved.setText(getString(R.string.edit_saved) + "\n(" + savedCount + ")");
+            } else {
+                editSaved.setOnClickListener(null);
+                editSaved.setText(getString(R.string.edit_saved));
+            }
+        } else {
+            editSaved.setOnClickListener(null);
+            editSaved.setText(getString(R.string.edit_saved));
+            Timber.d("Cannot update \"Edit Form\" button label since the database is closed. "
+                    + "Perhaps the app is running in the background?");
+        }
+
+        if (viewSentCursor != null && !viewSentCursor.isClosed()) {
+            viewSentCursor.requery();
+            viewSentCount = viewSentCursor.getCount();
+            if (viewSentCount > 0) {
+                Timber.d(getString(R.string.view_sent_forms_button, String.valueOf(viewSentCount)));
+            } else {
+                Timber.d(getString(R.string.view_sent_forms));
+            }
+        } else {
+            Timber.d(getString(R.string.view_sent_forms));
+            Timber.d("Cannot update \"View Sent\" button label since the database is closed. "
+                    + "Perhaps the app is running in the background?");
         }
     }
 }

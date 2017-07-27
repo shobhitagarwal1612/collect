@@ -518,4 +518,5 @@
     <string name="send_finalized">Send finalized</string>
     <string name="from_aggregate">From Aggregate</string>
     <string name="from_google_drive">From Google Drive</string>
+    <string name="open_activity">Open Activity</string>
 </resources>

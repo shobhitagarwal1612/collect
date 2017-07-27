@@ -124,7 +124,7 @@ public class MainMenuActivity extends AppCompatActivity {
         });
 
         Button button = (Button) findViewById(R.id.form_based);
-        button.setText("Open Activity");
+        button.setText(R.string.open_activity);
         button.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {

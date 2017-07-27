@@ -90,5 +90,7 @@ public class FormCursorAdapter extends SimpleCursorAdapter {
                 listener.sendFinalizedClicked(formID);
             }
         });
+
+        listener.updateCount(view, formID);
     }
 }
