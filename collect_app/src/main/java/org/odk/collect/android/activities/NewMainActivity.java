@@ -17,6 +17,7 @@ import org.odk.collect.android.adapters.FormCursorAdapter;
 import org.odk.collect.android.application.Collect;
 import org.odk.collect.android.dao.FormsDao;
 import org.odk.collect.android.listeners.DiskSyncListener;
+import org.odk.collect.android.listeners.FormClickListener;
 import org.odk.collect.android.provider.FormsProviderAPI;
 import org.odk.collect.android.tasks.DiskSyncTask;
 import org.odk.collect.android.utilities.ApplicationConstants;
@@ -27,7 +28,7 @@ import timber.log.Timber;
  * Created by shobhit on 26/7/17.
  */
 
-public class NewMainActivity extends FormListActivity implements DiskSyncListener, AdapterView.OnItemClickListener {
+public class NewMainActivity extends FormListActivity implements DiskSyncListener, AdapterView.OnItemClickListener, FormClickListener {
     private static final String FORM_CHOOSER_LIST_SORTING_ORDER = "formChooserListSortingOrder";
 
     private static final boolean EXIT = true;
@@ -160,14 +161,15 @@ public class NewMainActivity extends FormListActivity implements DiskSyncListene
 
     private void setupAdapter() {
         String[] data = new String[]{
-                FormsProviderAPI.FormsColumns.DISPLAY_NAME, FormsProviderAPI.FormsColumns.DISPLAY_SUBTEXT, FormsProviderAPI.FormsColumns.JR_VERSION
+                FormsProviderAPI.FormsColumns.DISPLAY_NAME,
+                FormsProviderAPI.FormsColumns.DISPLAY_SUBTEXT,
+                FormsProviderAPI.FormsColumns.JR_VERSION,
+                FormsProviderAPI.FormsColumns.JR_FORM_ID
         };
-        int[] view = new int[]{
-                R.id.text1, R.id.text2, R.id.text3
-        };
+        int[] view = new int[]{R.id.text1, R.id.text2, R.id.text3, R.id.text4};
 
         listAdapter =
-                new FormCursorAdapter(FormsProviderAPI.FormsColumns.JR_VERSION, this, R.layout.form_list_item, getCursor(), data, view);
+                new FormCursorAdapter(FormsProviderAPI.FormsColumns.JR_VERSION, this, R.layout.form_list_item, getCursor(), data, view, this);
 
         listView.setAdapter(listAdapter);
     }
@@ -215,5 +217,25 @@ public class NewMainActivity extends FormListActivity implements DiskSyncListene
         alertDialog.setCancelable(false);
         alertDialog.setButton(getString(R.string.ok), errorListener);
         alertDialog.show();
+    }
+
+    @Override
+    public void editSavedClicked(String formID) {
+        Collect.getInstance().getActivityLogger()
+                .logAction(this, ApplicationConstants.FormModes.EDIT_SAVED, "click");
+        Intent intent = new Intent(this, InstanceChooserList.class);
+        intent.putExtra(ApplicationConstants.BundleKeys.FORM_MODE,
+                ApplicationConstants.FormModes.EDIT_SAVED);
+        startActivity(intent);
+
+    }
+
+    @Override
+    public void sendFinalizedClicked(String formID) {
+        Collect.getInstance().getActivityLogger()
+                .logAction(this, "uploadForms", "click");
+        Intent intent = new Intent(this, InstanceUploaderList.class);
+        startActivity(intent);
+
     }
 }

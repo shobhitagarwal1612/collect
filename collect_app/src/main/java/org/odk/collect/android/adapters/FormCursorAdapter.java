@@ -15,7 +15,6 @@
 package org.odk.collect.android.adapters;
 
 import android.content.Context;
-import android.content.Intent;
 import android.database.Cursor;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,27 +22,26 @@ import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
 
 import org.odk.collect.android.R;
-import org.odk.collect.android.activities.InstanceChooserList;
-import org.odk.collect.android.activities.InstanceUploaderList;
-import org.odk.collect.android.application.Collect;
-import org.odk.collect.android.utilities.ApplicationConstants;
+import org.odk.collect.android.listeners.FormClickListener;
 
 /**
  * Implementation of cursor adapter that displays the version of a form if a form has a version.
  *
  * @author mitchellsundt@gmail.com
  */
-public class FormCursorAdapter extends SimpleCursorAdapter implements View.OnClickListener {
+public class FormCursorAdapter extends SimpleCursorAdapter {
 
     private final Context context;
     private final String versionColumnName;
     private final ViewBinder originalBinder;
+    private final FormClickListener listener;
 
     public FormCursorAdapter(String versionColumnName, Context context, int layout,
-                             Cursor c, String[] from, int[] to) {
+                             Cursor c, String[] from, int[] to, FormClickListener listener) {
         super(context, layout, c, from, to);
         this.versionColumnName = versionColumnName;
         this.context = context;
+        this.listener = listener;
         originalBinder = getViewBinder();
         setViewBinder(new ViewBinder() {
 
@@ -78,31 +76,19 @@ public class FormCursorAdapter extends SimpleCursorAdapter implements View.OnCli
     public void bindView(View view, Context context, Cursor cursor) {
         super.bindView(view, context, cursor);
 
-        view.findViewById(R.id.edit_saved).setOnClickListener(this);
-        view.findViewById(R.id.send_finalized).setOnClickListener(this);
-    }
+        final String formID = (String) ((TextView) view.findViewById(R.id.text4)).getText();
 
-    @Override
-    public void onClick(View v) {
-        Intent intent = null;
-
-        switch (v.getId()) {
-            case R.id.edit_saved:
-                Collect.getInstance().getActivityLogger()
-                        .logAction(this, ApplicationConstants.FormModes.EDIT_SAVED, "click");
-                intent = new Intent(context, InstanceChooserList.class);
-                intent.putExtra(ApplicationConstants.BundleKeys.FORM_MODE,
-                        ApplicationConstants.FormModes.EDIT_SAVED);
-                break;
-            case R.id.send_finalized:
-                Collect.getInstance().getActivityLogger()
-                        .logAction(this, "uploadForms", "click");
-                intent = new Intent(context, InstanceUploaderList.class);
-                break;
-        }
-
-        if (intent != null) {
-            context.startActivity(intent);
-        }
+        view.findViewById(R.id.edit_saved).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                listener.editSavedClicked(formID);
+            }
+        });
+        view.findViewById(R.id.send_finalized).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                listener.sendFinalizedClicked(formID);
+            }
+        });
     }
 }
