@@ -288,26 +288,30 @@ public class NewMainActivity extends FormListActivity implements DiskSyncListene
     public void animateFAB() {
 
         if (isFabOpen) {
-            frameLayout.setClickable(false);
             frameLayout.getBackground().setAlpha(0);
             fab.startAnimation(rotateBackward);
             fab1.startAnimation(fabClose);
-            cardViewAggregate.startAnimation(fabClose);
             fab2.startAnimation(fabClose);
+            cardViewAggregate.startAnimation(fabClose);
             cardViewGoogleDrive.startAnimation(fabClose);
             fab1.setClickable(false);
             fab2.setClickable(false);
+            frameLayout.setClickable(false);
+            cardViewAggregate.setClickable(false);
+            cardViewGoogleDrive.setClickable(false);
             isFabOpen = false;
         } else {
-            frameLayout.setClickable(true);
             frameLayout.getBackground().setAlpha(240);
             fab.startAnimation(rotateForward);
             fab1.startAnimation(fabOpen);
-            cardViewAggregate.startAnimation(fabOpen);
             fab2.startAnimation(fabOpen);
+            cardViewAggregate.startAnimation(fabOpen);
             cardViewGoogleDrive.startAnimation(fabOpen);
             fab1.setClickable(true);
             fab2.setClickable(true);
+            frameLayout.setClickable(true);
+            cardViewAggregate.setClickable(true);
+            cardViewGoogleDrive.setClickable(true);
             isFabOpen = true;
         }
     }

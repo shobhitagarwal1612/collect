@@ -149,7 +149,7 @@ public class InstancesDao {
         if (charSequence.length() == 0) {
             cursor = getFinalizedInstancesCursor(formID, sortOrder);
         } else {
-            String selection = InstanceProviderAPI.InstanceColumns.JR_FORM_ID + " +? amd ("
+            String selection = InstanceProviderAPI.InstanceColumns.JR_FORM_ID + " =? amd ("
                     + InstanceProviderAPI.InstanceColumns.STATUS + "=? or "
                     + InstanceProviderAPI.InstanceColumns.STATUS + "=?) and "
                     + InstanceProviderAPI.InstanceColumns.DISPLAY_NAME + " LIKE ?";
@@ -187,7 +187,7 @@ public class InstancesDao {
     }
 
     public Cursor getAllCompletedUndeletedInstancesCursor(String formID, String sortOrder) {
-        String selection = InstanceProviderAPI.InstanceColumns.JR_FORM_ID + " +? and "
+        String selection = InstanceProviderAPI.InstanceColumns.JR_FORM_ID + " =? and "
                 + InstanceProviderAPI.InstanceColumns.DELETED_DATE + " IS NULL and ("
                 + InstanceProviderAPI.InstanceColumns.STATUS + "=? or "
                 + InstanceProviderAPI.InstanceColumns.STATUS + "=? or "
