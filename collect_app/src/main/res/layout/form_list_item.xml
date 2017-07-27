@@ -56,9 +56,9 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:drawableLeft="@drawable/ic_attach_file_black_24dp"
-                    android:drawableStart="@drawable/ic_attach_file_black_24dp"
-                    android:text="Edit saved"
+                    android:drawableLeft="@drawable/ic_mode_edit_black_24dp"
+                    android:drawableStart="@drawable/ic_mode_edit_black_24dp"
+                    android:text="@string/edit_saved"
                     android:textAppearance="?android:attr/textAppearanceSmall" />
 
                 <View
@@ -72,9 +72,9 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:drawableLeft="@drawable/ic_play_arrow_black_24dp"
-                    android:drawableStart="@drawable/ic_play_arrow_black_24dp"
-                    android:text="Send finalized"
+                    android:drawableLeft="@drawable/ic_send_black_24dp"
+                    android:drawableStart="@drawable/ic_send_black_24dp"
+                    android:text="@string/send_finalized"
                     android:textAppearance="?android:attr/textAppearanceSmall" />
             </LinearLayout>
 

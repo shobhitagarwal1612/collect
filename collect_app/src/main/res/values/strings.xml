@@ -514,4 +514,6 @@
     <string name="form_delete_message">Deleting selected forms</string>
     <string name="deleting_form_dialog_update_message">Deleting form: %1$d out of %2$d </string>
     <string name="search">Search</string>
+    <string name="edit_saved">Edit saved</string>
+    <string name="send_finalized">Send finalized</string>
 </resources>
