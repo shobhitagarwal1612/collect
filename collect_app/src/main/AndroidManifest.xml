@@ -165,6 +165,9 @@ the specific language governing permissions and limitations under the License.
             android:name=".activities.FormDownloadList"
             android:label="@string/app_name" />
         <activity
+            android:name=".activities.NewMainActivity"
+            android:label="@string/app_name" />
+        <activity
             android:name=".activities.FileManagerTabs"
             android:configChanges="orientation|screenSize"
             android:label="@string/app_name" />

@@ -56,8 +56,8 @@ import org.odk.collect.android.provider.InstanceProviderAPI.InstanceColumns;
 import org.odk.collect.android.utilities.ApplicationConstants;
 import org.odk.collect.android.utilities.AuthDialogUtility;
 import org.odk.collect.android.utilities.PlayServicesUtil;
-import org.odk.collect.android.utilities.ToastUtils;
 import org.odk.collect.android.utilities.SharedPreferencesUtils;
+import org.odk.collect.android.utilities.ToastUtils;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -119,6 +119,19 @@ public class MainMenuActivity extends AppCompatActivity {
                         .logAction(this, "fillBlankForm", "click");
                 Intent i = new Intent(getApplicationContext(),
                         FormChooserList.class);
+                startActivity(i);
+            }
+        });
+
+        Button button = (Button) findViewById(R.id.form_based);
+        button.setText("Open Activity");
+        button.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Collect.getInstance().getActivityLogger()
+                        .logAction(this, "fillBlankForm", "click");
+                Intent i = new Intent(getApplicationContext(),
+                        NewMainActivity.class);
                 startActivity(i);
             }
         });
