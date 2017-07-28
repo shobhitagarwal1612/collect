@@ -12,6 +12,8 @@ import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.widget.CardView;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
@@ -26,6 +28,11 @@ import org.odk.collect.android.dao.FormsDao;
 import org.odk.collect.android.dao.InstancesDao;
 import org.odk.collect.android.listeners.DiskSyncListener;
 import org.odk.collect.android.listeners.FormClickListener;
+import org.odk.collect.android.preferences.AboutPreferencesActivity;
+import org.odk.collect.android.preferences.AdminKeys;
+import org.odk.collect.android.preferences.AdminPreferencesActivity;
+import org.odk.collect.android.preferences.AdminSharedPreferences;
+import org.odk.collect.android.preferences.PreferencesActivity;
 import org.odk.collect.android.provider.FormsProviderAPI;
 import org.odk.collect.android.tasks.DiskSyncTask;
 import org.odk.collect.android.utilities.ApplicationConstants;
@@ -42,7 +49,7 @@ public class NewMainActivity extends FormListActivity implements DiskSyncListene
 
     private static final boolean EXIT = true;
     private static final String syncMsgKey = "syncmsgkey";
-
+    private static final int PASSWORD_DIALOG = 1;
     private DiskSyncTask diskSyncTask;
     private FloatingActionButton fab;
     private FloatingActionButton fab1;
@@ -453,4 +460,52 @@ public class NewMainActivity extends FormListActivity implements DiskSyncListene
                     + "Perhaps the app is running in the background?");
         }
     }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        Collect.getInstance().getActivityLogger()
+                .logAction(this, "onCreateOptionsMenu", "show");
+        super.onCreateOptionsMenu(menu);
+
+        getMenuInflater().inflate(R.menu.main_menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.menu_about:
+                Collect.getInstance()
+                        .getActivityLogger()
+                        .logAction(this, "onOptionsItemSelected",
+                                "MENU_ABOUT");
+                Intent aboutIntent = new Intent(this, AboutPreferencesActivity.class);
+                startActivity(aboutIntent);
+                return true;
+            case R.id.menu_general_preferences:
+                Collect.getInstance()
+                        .getActivityLogger()
+                        .logAction(this, "onOptionsItemSelected",
+                                "MENU_PREFERENCES");
+                Intent ig = new Intent(this, PreferencesActivity.class);
+                startActivity(ig);
+                return true;
+            case R.id.menu_admin_preferences:
+                Collect.getInstance().getActivityLogger()
+                        .logAction(this, "onOptionsItemSelected", "MENU_ADMIN");
+                String pw = (String) AdminSharedPreferences.getInstance().get(AdminKeys.KEY_ADMIN_PW);
+                if ("".equalsIgnoreCase(pw)) {
+                    Intent i = new Intent(getApplicationContext(),
+                            AdminPreferencesActivity.class);
+                    startActivity(i);
+                } else {
+                    showDialog(PASSWORD_DIALOG);
+                    Collect.getInstance().getActivityLogger()
+                            .logAction(this, "createAdminPasswordDialog", "show");
+                }
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
 }
