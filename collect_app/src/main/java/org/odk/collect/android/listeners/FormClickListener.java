@@ -13,4 +13,6 @@ public interface FormClickListener {
     void sendFinalizedClicked(String formID);
 
     void updateCount(View view, String formID);
+
+    void viewSentClicked(String formID);
 }

@@ -67,7 +67,7 @@ public class InstancesDaoTest {
 
     @Test
     public void getSentInstancesCursorTest() {
-        Cursor cursor = instancesDao.getSentInstancesCursor();
+        Cursor cursor = instancesDao.getSentInstancesCursor("");
         List<Instance> instances = instancesDao.getInstancesFromCursor(cursor);
         assertEquals(2, instances.size());
 

@@ -34,24 +34,28 @@ import java.util.List;
  */
 public class InstancesDao {
 
-    public Cursor getSentInstancesCursor() {
-        String selection = InstanceProviderAPI.InstanceColumns.STATUS + " =? ";
-        String[] selectionArgs = {InstanceProviderAPI.STATUS_SUBMITTED};
+    public Cursor getSentInstancesCursor(String formID) {
+        String selection = InstanceProviderAPI.InstanceColumns.JR_FORM_ID + " =? and "
+                + InstanceProviderAPI.InstanceColumns.STATUS + " =? ";
+        String[] selectionArgs = {formID, InstanceProviderAPI.STATUS_SUBMITTED};
         String sortOrder = InstanceProviderAPI.InstanceColumns.DISPLAY_NAME + " ASC";
 
         return getInstancesCursor(null, selection, selectionArgs, sortOrder);
     }
 
-    public Cursor getSentInstancesCursor(CharSequence charSequence, String sortOrder) {
+    public Cursor getSentInstancesCursor(String formID, CharSequence charSequence, String sortOrder) {
         Cursor cursor;
         if (charSequence.length() == 0) {
-            cursor = getSentInstancesCursor(sortOrder);
+            cursor = getSentInstancesCursor(formID, sortOrder);
         } else {
-            String selection = InstanceProviderAPI.InstanceColumns.STATUS + " =? and "
+            String selection = InstanceProviderAPI.InstanceColumns.JR_FORM_ID + " =? and "
+                    + InstanceProviderAPI.InstanceColumns.STATUS + " =? and "
                     + InstanceProviderAPI.InstanceColumns.DISPLAY_NAME + " LIKE ?";
             String[] selectionArgs = {
+                    formID,
                     InstanceProviderAPI.STATUS_SUBMITTED,
-                    "%" + charSequence + "%"};
+                    "%" + charSequence + "%"
+            };
 
             cursor = getInstancesCursor(null, selection, selectionArgs, sortOrder);
         }
@@ -59,9 +63,13 @@ public class InstancesDao {
         return cursor;
     }
 
-    public Cursor getSentInstancesCursor(String sortOrder) {
-        String selection = InstanceProviderAPI.InstanceColumns.STATUS + " =? ";
-        String[] selectionArgs = {InstanceProviderAPI.STATUS_SUBMITTED};
+    public Cursor getSentInstancesCursor(String formID, String sortOrder) {
+        String selection = InstanceProviderAPI.InstanceColumns.JR_FORM_ID + " =? and "
+                + InstanceProviderAPI.InstanceColumns.STATUS + " =? ";
+        String[] selectionArgs = {
+                formID,
+                InstanceProviderAPI.STATUS_SUBMITTED
+        };
 
         return getInstancesCursor(null, selection, selectionArgs, sortOrder);
     }

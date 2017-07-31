@@ -90,6 +90,12 @@ public class FormCursorAdapter extends SimpleCursorAdapter {
                 listener.sendFinalizedClicked(formID);
             }
         });
+        view.findViewById(R.id.view_sent).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                listener.viewSentClicked(formID);
+            }
+        });
 
         listener.updateCount(view, formID);
     }

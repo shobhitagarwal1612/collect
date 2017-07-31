@@ -57,46 +57,55 @@
                 android:textAppearance="?android:attr/textAppearanceSmall"
                 tools:text="Added on wednesday"/>
 
-            <LinearLayout
-                android:id="@+id/ll"
-                android:layout_width="match_parent"
+            <TextView
+                android:id="@+id/edit_saved"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/text2"
+                android:layout_marginEnd="@dimen/margin_large"
+                android:layout_marginRight="@dimen/margin_large"
+                android:layout_marginTop="@dimen/margin_medium"
+                android:background="@drawable/shape_chip_drawable_blue"
+                android:gravity="center"
+                android:padding="@dimen/padding_medium"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:textColor="@color/white"
+                android:textStyle="bold"
+                tools:text="15 Saved"/>
+
+            <TextView
+                android:id="@+id/send_finalized"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/text2"
+                android:layout_marginEnd="@dimen/margin_large"
+                android:layout_marginRight="@dimen/margin_large"
+                android:layout_marginTop="@dimen/margin_medium"
+                android:layout_toEndOf="@+id/edit_saved"
+                android:layout_toRightOf="@+id/edit_saved"
+                android:background="@drawable/shape_chip_drawable_green"
+                android:gravity="center"
+                android:padding="@dimen/padding_medium"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:textColor="@color/white"
+                android:textStyle="bold"
+                tools:text="10 Finalized"/>
+
+            <TextView
+                android:id="@+id/view_sent"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_below="@+id/text2"
                 android:layout_marginTop="@dimen/margin_medium"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:id="@+id/edit_saved"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:drawableLeft="@drawable/ic_mode_edit_black_24dp"
-                    android:drawablePadding="@dimen/padding_small"
-                    android:drawableStart="@drawable/ic_mode_edit_black_24dp"
-                    android:gravity="center"
-                    android:padding="@dimen/padding_medium"
-                    android:text="@string/edit_saved"
-                    android:textAppearance="?android:attr/textAppearanceSmall"/>
-
-                <View
-                    android:layout_width="1dp"
-                    android:layout_height="match_parent"
-                    android:layout_margin="@dimen/margin_medium"
-                    android:background="@android:color/darker_gray"/>
-
-                <TextView
-                    android:id="@+id/send_finalized"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:drawableLeft="@drawable/ic_send_black_24dp"
-                    android:drawablePadding="@dimen/padding_small"
-                    android:drawableStart="@drawable/ic_send_black_24dp"
-                    android:gravity="center"
-                    android:padding="@dimen/padding_medium"
-                    android:text="@string/send_finalized"
-                    android:textAppearance="?android:attr/textAppearanceSmall"/>
-            </LinearLayout>
+                android:layout_toEndOf="@+id/send_finalized"
+                android:layout_toRightOf="@+id/send_finalized"
+                android:background="@drawable/shape_chip_drawable_orange"
+                android:gravity="center"
+                android:padding="@dimen/padding_medium"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:textColor="@color/white"
+                android:textStyle="bold"
+                tools:text="10 Sent"/>
 
             <TextView
                 android:id="@+id/text4"

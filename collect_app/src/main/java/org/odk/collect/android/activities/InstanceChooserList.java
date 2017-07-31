@@ -244,7 +244,7 @@ public class InstanceChooserList extends InstanceListActivity implements DiskSyn
         if (editMode) {
             cursor = new InstancesDao().getUnsentInstancesCursor(formID, getFilterText(), getSortingOrder());
         } else {
-            cursor = new InstancesDao().getSentInstancesCursor(getFilterText(), getSortingOrder());
+            cursor = new InstancesDao().getSentInstancesCursor(formID, getFilterText(), getSortingOrder());
         }
 
         return cursor;

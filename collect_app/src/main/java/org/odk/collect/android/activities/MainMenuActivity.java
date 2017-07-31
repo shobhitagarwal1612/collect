@@ -306,7 +306,7 @@ public class MainMenuActivity extends AppCompatActivity {
 
         //count for view sent form
         try {
-            viewSentCursor = instancesDao.getSentInstancesCursor();
+            viewSentCursor = instancesDao.getSentInstancesCursor("");
         } catch (Exception e) {
             createErrorDialog(e.getMessage(), EXIT);
             return;

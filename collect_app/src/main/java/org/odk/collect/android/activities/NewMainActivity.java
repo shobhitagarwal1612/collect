@@ -8,7 +8,6 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.widget.CardView;
@@ -68,7 +67,6 @@ public class NewMainActivity extends FormListActivity implements DiskSyncListene
     private int completedCount;
     private int savedCount;
     private int viewSentCount;
-    private CoordinatorLayout coordinatorLayout;
     private String status;
 
     @Override
@@ -102,8 +100,6 @@ public class NewMainActivity extends FormListActivity implements DiskSyncListene
                 getString(R.string.sort_by_name_asc), getString(R.string.sort_by_name_desc),
                 getString(R.string.sort_by_date_asc), getString(R.string.sort_by_date_desc),
         };
-
-        coordinatorLayout = (CoordinatorLayout) findViewById(R.id.coordinator);
 
         fab = (FloatingActionButton) findViewById(R.id.fab);
         fab1 = (FloatingActionButton) findViewById(R.id.fab1);
@@ -296,6 +292,12 @@ public class NewMainActivity extends FormListActivity implements DiskSyncListene
         startActivity(intent);
     }
 
+
+    @Override
+    public void viewSentClicked(String formID) {
+
+    }
+
     @Override
     public void updateCount(View view, String formID) {
 
@@ -329,7 +331,7 @@ public class NewMainActivity extends FormListActivity implements DiskSyncListene
 
         //count for view sent form
         try {
-            viewSentCursor = instancesDao.getSentInstancesCursor();
+            viewSentCursor = instancesDao.getSentInstancesCursor(formID);
         } catch (Exception e) {
             createErrorDialog(e.getMessage(), EXIT);
             return;
@@ -409,15 +411,15 @@ public class NewMainActivity extends FormListActivity implements DiskSyncListene
     private void updateButtons(View view) {
         TextView editSaved = (TextView) view.findViewById(R.id.edit_saved);
         TextView sendFinalized = (TextView) view.findViewById(R.id.send_finalized);
+        TextView viewSent = (TextView) view.findViewById(R.id.view_sent);
 
         if (finalizedCursor != null && !finalizedCursor.isClosed()) {
             finalizedCursor.requery();
             completedCount = finalizedCursor.getCount();
             if (completedCount > 0) {
-                sendFinalized.setText(getString(R.string.send_finalized) + "\n(" + completedCount + ")");
+                sendFinalized.setText(completedCount + " " + getString(R.string.send_finalized));
             } else {
-                sendFinalized.setOnClickListener(null);
-                sendFinalized.setText(getString(R.string.send_finalized));
+                sendFinalized.setVisibility(View.GONE);
             }
         } else {
             sendFinalized.setOnClickListener(null);
@@ -430,10 +432,9 @@ public class NewMainActivity extends FormListActivity implements DiskSyncListene
             savedCursor.requery();
             savedCount = savedCursor.getCount();
             if (savedCount > 0) {
-                editSaved.setText(getString(R.string.edit_saved) + "\n(" + savedCount + ")");
+                editSaved.setText(savedCount + " " + getString(R.string.edit_saved));
             } else {
-                editSaved.setOnClickListener(null);
-                editSaved.setText(getString(R.string.edit_saved));
+                editSaved.setVisibility(View.GONE);
             }
         } else {
             editSaved.setOnClickListener(null);
@@ -446,9 +447,9 @@ public class NewMainActivity extends FormListActivity implements DiskSyncListene
             viewSentCursor.requery();
             viewSentCount = viewSentCursor.getCount();
             if (viewSentCount > 0) {
-                Timber.d(getString(R.string.view_sent_forms_button, String.valueOf(viewSentCount)));
+                viewSent.setText(viewSentCount + " " + getString(R.string.view_sent));
             } else {
-                Timber.d(getString(R.string.view_sent_forms));
+                viewSent.setVisibility(View.GONE);
             }
         } else {
             Timber.d(getString(R.string.view_sent_forms));
