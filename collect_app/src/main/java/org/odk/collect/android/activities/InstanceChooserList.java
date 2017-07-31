@@ -22,6 +22,7 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.SimpleCursorAdapter;
@@ -89,10 +90,31 @@ public class InstanceChooserList extends InstanceListActivity implements DiskSyn
             ((TextView) findViewById(android.R.id.empty)).setText(R.string.no_items_display_sent_forms);
         }
         setupAdapter();
+        setupFAB();
 
         instanceSyncTask = new InstanceSyncTask();
         instanceSyncTask.setDiskSyncListener(this);
         instanceSyncTask.execute();
+    }
+
+    private void setupFAB() {
+        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Uri formUri = getIntent().getExtras().getParcelable("formUri");
+                String action = getIntent().getAction();
+                if (Intent.ACTION_PICK.equals(action)) {
+                    // caller is waiting on a picked form
+                    setResult(RESULT_OK, new Intent().setData(formUri));
+                } else {
+                    // caller wants to view/edit a form, so launch formentryactivity
+                    Intent intent = new Intent(Intent.ACTION_EDIT, formUri);
+                    intent.putExtra(ApplicationConstants.BundleKeys.FORM_MODE, ApplicationConstants.FormModes.EDIT_SAVED);
+                    startActivity(intent);
+                }
+            }
+        });
     }
 
     @Override

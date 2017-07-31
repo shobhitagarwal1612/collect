@@ -157,23 +157,19 @@ public class NewMainActivity extends FormListActivity implements DiskSyncListene
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         // get uri to form
         long idFormsTable = listView.getAdapter().getItemId(position);
+        View childView = listView.getChildAt(position);
+        String formID = (String) ((TextView) childView.findViewById(R.id.text4)).getText();
         Uri formUri = ContentUris.withAppendedId(FormsProviderAPI.FormsColumns.CONTENT_URI, idFormsTable);
 
         Collect.getInstance().getActivityLogger().logAction(this, "onListItemClick",
                 formUri.toString());
 
-        String action = getIntent().getAction();
-        if (Intent.ACTION_PICK.equals(action)) {
-            // caller is waiting on a picked form
-            setResult(RESULT_OK, new Intent().setData(formUri));
-        } else {
-            // caller wants to view/edit a form, so launch formentryactivity
-            Intent intent = new Intent(Intent.ACTION_EDIT, formUri);
-            intent.putExtra(ApplicationConstants.BundleKeys.FORM_MODE, ApplicationConstants.FormModes.EDIT_SAVED);
-            startActivity(intent);
-        }
-
-        finish();
+        Intent intent = new Intent(this, InstanceChooserList.class);
+        intent.putExtra(ApplicationConstants.BundleKeys.FORM_MODE,
+                ApplicationConstants.FormModes.EDIT_SAVED);
+        intent.putExtra(FormsProviderAPI.FormsColumns.JR_FORM_ID, formID);
+        intent.putExtra("formUri", formUri);
+        startActivity(intent);
     }
 
     @Override
