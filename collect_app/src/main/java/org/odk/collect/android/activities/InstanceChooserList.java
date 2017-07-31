@@ -23,6 +23,7 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.SimpleCursorAdapter;
@@ -55,6 +56,8 @@ public class InstanceChooserList extends InstanceListActivity implements DiskSyn
     private InstanceSyncTask instanceSyncTask;
 
     private boolean editMode;
+
+    private FloatingActionButton fab;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -98,7 +101,7 @@ public class InstanceChooserList extends InstanceListActivity implements DiskSyn
     }
 
     private void setupFAB() {
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -193,8 +196,7 @@ public class InstanceChooserList extends InstanceListActivity implements DiskSyn
 
     @Override
     public void syncComplete(String result) {
-        TextView textView = (TextView) findViewById(R.id.status_text);
-        textView.setText(result);
+        Snackbar.make(fab, result, Snackbar.LENGTH_LONG).show();
     }
 
     @Override
