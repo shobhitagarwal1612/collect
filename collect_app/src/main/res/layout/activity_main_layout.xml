@@ -167,7 +167,6 @@ the License.
         android:layout_gravity="bottom|end"
         android:layout_margin="24dp"
         android:src="@drawable/ic_add_white"
-        app:backgroundTint="@color/colorFAB"
         app:elevation="6dp"
         app:pressedTranslationZ="12dp"/>
 </android.support.design.widget.CoordinatorLayout>
