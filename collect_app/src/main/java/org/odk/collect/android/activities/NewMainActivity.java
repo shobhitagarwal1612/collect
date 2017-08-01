@@ -85,8 +85,6 @@ public class NewMainActivity extends FormListActivity implements DiskSyncListene
 
         setTitle(getString(R.string.app_name));
 
-        setupAdapter();
-
         // DiskSyncTask checks the disk for any forms not already in the content provider
         // that is, put here by dragging and dropping onto the SDCard
         diskSyncTask = (DiskSyncTask) getLastCustomNonConfigurationInstance();
@@ -153,23 +151,22 @@ public class NewMainActivity extends FormListActivity implements DiskSyncListene
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         // get uri to form
         long idFormsTable = listView.getAdapter().getItemId(position);
-        View childView = listView.getChildAt(position);
-        String formID = (String) ((TextView) childView.findViewById(R.id.text4)).getText();
         Uri formUri = ContentUris.withAppendedId(FormsProviderAPI.FormsColumns.CONTENT_URI, idFormsTable);
-
-        Collect.getInstance().getActivityLogger().logAction(this, "onListItemClick",
-                formUri.toString());
-
-        Intent intent = new Intent(this, InstanceChooserList.class);
-        intent.putExtra(ApplicationConstants.BundleKeys.FORM_MODE,
-                ApplicationConstants.FormModes.EDIT_SAVED);
-        intent.putExtra(FormsProviderAPI.FormsColumns.JR_FORM_ID, formID);
-        intent.putExtra("formUri", formUri);
-        startActivity(intent);
+        String action = getIntent().getAction();
+        if (Intent.ACTION_PICK.equals(action)) {
+            // caller is waiting on a picked form
+            setResult(RESULT_OK, new Intent().setData(formUri));
+        } else {
+            // caller wants to view/edit a form, so launch formentryactivity
+            Intent intent = new Intent(Intent.ACTION_EDIT, formUri);
+            intent.putExtra(ApplicationConstants.BundleKeys.FORM_MODE, ApplicationConstants.FormModes.EDIT_SAVED);
+            startActivity(intent);
+        }
     }
 
     @Override
     protected void onResume() {
+        setupAdapter();
         diskSyncTask.setDiskSyncListener(this);
         super.onResume();
 
@@ -295,7 +292,13 @@ public class NewMainActivity extends FormListActivity implements DiskSyncListene
 
     @Override
     public void viewSentClicked(String formID) {
-
+        Collect.getInstance().getActivityLogger()
+                .logAction(this, "viewSent", "click");
+        Intent i = new Intent(getApplicationContext(), InstanceChooserList.class);
+        i.putExtra(ApplicationConstants.BundleKeys.FORM_MODE,
+                ApplicationConstants.FormModes.VIEW_SENT);
+        i.putExtra(FormsProviderAPI.FormsColumns.JR_FORM_ID, formID);
+        startActivity(i);
     }
 
     @Override
