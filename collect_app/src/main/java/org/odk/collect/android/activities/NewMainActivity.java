@@ -270,13 +270,17 @@ public class NewMainActivity extends FormListActivity implements DiskSyncListene
     }
 
     @Override
-    public void editSavedClicked(String formID) {
+    public void editSavedClicked(String formID, int position) {
+        long idFormsTable = listView.getAdapter().getItemId(position);
+        Uri formUri = ContentUris.withAppendedId(FormsProviderAPI.FormsColumns.CONTENT_URI, idFormsTable);
+
         Collect.getInstance().getActivityLogger()
                 .logAction(this, ApplicationConstants.FormModes.EDIT_SAVED, "click");
         Intent intent = new Intent(this, InstanceChooserList.class);
         intent.putExtra(ApplicationConstants.BundleKeys.FORM_MODE,
                 ApplicationConstants.FormModes.EDIT_SAVED);
         intent.putExtra(FormsProviderAPI.FormsColumns.JR_FORM_ID, formID);
+        intent.putExtra("formUri", formUri);
         startActivity(intent);
     }
 

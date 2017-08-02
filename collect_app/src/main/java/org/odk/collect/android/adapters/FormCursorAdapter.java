@@ -73,7 +73,7 @@ public class FormCursorAdapter extends SimpleCursorAdapter {
     }
 
     @Override
-    public void bindView(View view, Context context, Cursor cursor) {
+    public void bindView(View view, Context context, final Cursor cursor) {
         super.bindView(view, context, cursor);
 
         final String formID = (String) ((TextView) view.findViewById(R.id.text4)).getText();
@@ -81,7 +81,7 @@ public class FormCursorAdapter extends SimpleCursorAdapter {
         view.findViewById(R.id.edit_saved).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                listener.editSavedClicked(formID);
+                listener.editSavedClicked(formID, cursor.getPosition());
             }
         });
         view.findViewById(R.id.send_finalized).setOnClickListener(new View.OnClickListener() {

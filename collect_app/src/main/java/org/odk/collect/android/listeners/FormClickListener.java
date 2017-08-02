@@ -8,7 +8,7 @@ import android.view.View;
 
 public interface FormClickListener {
 
-    void editSavedClicked(String formID);
+    void editSavedClicked(String formID, int position);
 
     void sendFinalizedClicked(String formID);
 

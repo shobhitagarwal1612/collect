@@ -149,19 +149,6 @@ public class InstanceChooserList extends InstanceListActivity implements DiskSyn
                         } else {
                             ToastUtils.showShortToast(R.string.noselect_error);
                         }
-                        /*// Calls getSelectedIds method from ListViewAdapter Class
-                        SparseBooleanArray selected = listviewadapter
-                                .getSelectedIds();
-                        // Captures all selected ids with a loop
-                        for (int i = (selected.size() - 1); i >= 0; i--) {
-                            if (selected.valueAt(i)) {
-                                WorldPopulation selecteditem = listviewadapter
-                                        .getItem(selected.keyAt(i));
-                                // Remove selected items following the ids
-                                listviewadapter.remove(selecteditem);
-                            }
-                        }*/
-                        ToastUtils.showShortToast(selectedInstances.size() + " deleted");
                         // Close CAB
                         mode.finish();
                         return true;
@@ -216,6 +203,11 @@ public class InstanceChooserList extends InstanceListActivity implements DiskSyn
                 }
             }
         });
+
+        String formMode = getIntent().getStringExtra(ApplicationConstants.BundleKeys.FORM_MODE);
+        if (formMode == null || ApplicationConstants.FormModes.VIEW_SENT.equalsIgnoreCase(formMode)) {
+            fab.setVisibility(View.GONE);
+        }
     }
 
     @Override

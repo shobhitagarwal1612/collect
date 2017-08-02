@@ -23,19 +23,19 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
 import android.support.v4.content.ContextCompat;
 import android.view.ActionMode;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.view.View.OnLongClickListener;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
-import android.widget.TextView;
 
 import org.odk.collect.android.R;
 import org.odk.collect.android.dao.InstancesDao;
@@ -74,13 +74,9 @@ public class InstanceUploaderList extends InstanceListActivity
     private static final int MENU_SHOW_UNSENT = MENU_PREFERENCES + 1;
 
     private static final int INSTANCE_UPLOADER = 0;
-
-    private Button uploadButton;
-
+    FloatingActionButton fab;
     private InstancesDao instancesDao;
-
     private InstanceSyncTask instanceSyncTask;
-
     private boolean showAllMode;
 
     @Override
@@ -95,51 +91,8 @@ public class InstanceUploaderList extends InstanceListActivity
 
         instancesDao = new InstancesDao();
 
-        uploadButton = (Button) findViewById(R.id.upload_button);
-        uploadButton.setOnClickListener(new OnClickListener() {
-
-            @Override
-            public void onClick(View v) {
-                ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(
-                        Context.CONNECTIVITY_SERVICE);
-                NetworkInfo ni = connectivityManager.getActiveNetworkInfo();
-
-                if (NetworkReceiver.running) {
-                    ToastUtils.showShortToast(R.string.send_in_progress);
-                } else if (ni == null || !ni.isConnected()) {
-                    logger.logAction(this, "uploadButton", "noConnection");
-
-                    ToastUtils.showShortToast(R.string.no_connection);
-                } else {
-                    int checkedItemCount = getCheckedCount();
-                    logger.logAction(this, "uploadButton", Integer.toString(checkedItemCount));
-
-                    if (checkedItemCount > 0) {
-                        // items selected
-                        uploadSelectedFiles();
-                        InstanceUploaderList.this.listView.clearChoices();
-                    } else {
-                        // no items selected
-                        ToastUtils.showLongToast(R.string.noselect_error);
-                    }
-                }
-            }
-        });
-
-        final Button toggleSelsButton = (Button) findViewById(R.id.toggle_button);
-        toggleSelsButton.setLongClickable(true);
-        toggleSelsButton.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                ListView lv = listView;
-                boolean allChecked = toggleChecked(lv);
-                toggleButtonLabel(toggleSelsButton, lv);
-                uploadButton.setEnabled(allChecked);
-            }
-        });
-        toggleSelsButton.setOnLongClickListener(this);
-
         setupAdapter();
+        setupFAB();
 
         // set title
         setTitle(getString(R.string.send_data));
@@ -192,19 +145,6 @@ public class InstanceUploaderList extends InstanceListActivity
                         } else {
                             ToastUtils.showShortToast(R.string.noselect_error);
                         }
-                        /*// Calls getSelectedIds method from ListViewAdapter Class
-                        SparseBooleanArray selected = listviewadapter
-                                .getSelectedIds();
-                        // Captures all selected ids with a loop
-                        for (int i = (selected.size() - 1); i >= 0; i--) {
-                            if (selected.valueAt(i)) {
-                                WorldPopulation selecteditem = listviewadapter
-                                        .getItem(selected.keyAt(i));
-                                // Remove selected items following the ids
-                                listviewadapter.remove(selecteditem);
-                            }
-                        }*/
-                        ToastUtils.showShortToast(selectedInstances.size() + " deleted");
                         // Close CAB
                         mode.finish();
                         return true;
@@ -237,6 +177,38 @@ public class InstanceUploaderList extends InstanceListActivity
             @Override
             public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
                 return false;
+            }
+        });
+    }
+
+    private void setupFAB() {
+        fab = (FloatingActionButton) findViewById(R.id.fab);
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(
+                        Context.CONNECTIVITY_SERVICE);
+                NetworkInfo ni = connectivityManager.getActiveNetworkInfo();
+
+                if (NetworkReceiver.running) {
+                    ToastUtils.showShortToast(R.string.send_in_progress);
+                } else if (ni == null || !ni.isConnected()) {
+                    logger.logAction(this, "uploadButton", "noConnection");
+
+                    ToastUtils.showShortToast(R.string.no_connection);
+                } else {
+                    int checkedItemCount = getCheckedCount();
+                    logger.logAction(this, "uploadButton", Integer.toString(checkedItemCount));
+
+                    if (checkedItemCount > 0) {
+                        // items selected
+                        uploadSelectedFiles();
+                        InstanceUploaderList.this.listView.clearChoices();
+                    } else {
+                        // no items selected
+                        ToastUtils.showLongToast(R.string.noselect_error);
+                    }
+                }
             }
         });
     }
@@ -277,8 +249,7 @@ public class InstanceUploaderList extends InstanceListActivity
 
     @Override
     public void syncComplete(String result) {
-        TextView textView = (TextView) findViewById(R.id.status_text);
-        textView.setText(result);
+        Snackbar.make(fab, result, Snackbar.LENGTH_LONG).show();
     }
 
     @Override
@@ -360,7 +331,6 @@ public class InstanceUploaderList extends InstanceListActivity
             selectedInstances.remove(listView.getItemIdAtPosition(position));
         }
 
-        uploadButton.setEnabled(areCheckedItems());
         Button toggleSelectionsButton = (Button) findViewById(R.id.toggle_button);
         toggleButtonLabel(toggleSelectionsButton, listView);
     }
@@ -553,9 +523,6 @@ public class InstanceUploaderList extends InstanceListActivity
                                 logger.logAction(this,
                                         "createDeleteInstancesDialog", "delete");
                                 deleteSelectedInstances();
-                                if (listView.getCount() == getCheckedCount()) {
-                                    //toggleButton.setEnabled(false);
-                                }
                                 break;
                             case DialogInterface.BUTTON_NEGATIVE: // do nothing
                                 logger.logAction(this,
