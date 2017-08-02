@@ -23,11 +23,14 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v4.content.ContextCompat;
+import android.view.ActionMode;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnLongClickListener;
+import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ListView;
@@ -43,11 +46,13 @@ import org.odk.collect.android.preferences.PreferencesActivity;
 import org.odk.collect.android.provider.FormsProviderAPI;
 import org.odk.collect.android.provider.InstanceProviderAPI.InstanceColumns;
 import org.odk.collect.android.receivers.NetworkReceiver;
+import org.odk.collect.android.tasks.DeleteInstancesTask;
 import org.odk.collect.android.tasks.InstanceSyncTask;
 import org.odk.collect.android.utilities.PlayServicesUtil;
 import org.odk.collect.android.utilities.ToastUtils;
 
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
 
 import timber.log.Timber;
@@ -136,15 +141,6 @@ public class InstanceUploaderList extends InstanceListActivity
 
         setupAdapter();
 
-        listView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
-        listView.setItemsCanFocus(false);
-        listView.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
-            @Override
-            public void onLayoutChange(View v, int left, int top, int right, int bottom, int oldLeft, int oldTop, int oldRight, int oldBottom) {
-                uploadButton.setEnabled(areCheckedItems());
-            }
-        });
-
         // set title
         setTitle(getString(R.string.send_data));
 
@@ -156,14 +152,109 @@ public class InstanceUploaderList extends InstanceListActivity
                 getString(R.string.sort_by_name_asc), getString(R.string.sort_by_name_desc),
                 getString(R.string.sort_by_date_asc), getString(R.string.sort_by_date_desc)
         };
+
+        listView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE_MODAL);
+        listView.setItemsCanFocus(false);
+        listView.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
+            @Override
+            public void onLayoutChange(View v, int left, int top, int right, int bottom, int oldLeft, int oldTop, int oldRight, int oldBottom) {
+                //uploadButton.setEnabled(areCheckedItems());
+            }
+        });
+
+        listView.setMultiChoiceModeListener(new AbsListView.MultiChoiceModeListener() {
+
+            @Override
+            public void onItemCheckedStateChanged(ActionMode mode,
+                                                  int position, long id, boolean checked) {
+                // Capture total checked items
+                final int checkedCount = getCheckedCount();
+                // Set the CAB title according to total checked items
+                mode.setTitle(checkedCount + " Selected");
+                // Calls toggleSelection method from ListViewAdapter Class
+                if (checked) {
+                    listView.getChildAt(position).setBackgroundColor(ContextCompat.getColor(getBaseContext(), R.color.list_item_selected_state));
+                    selectedInstances.add(listView.getItemIdAtPosition(position));
+                } else {
+                    listView.getChildAt(position).setBackgroundColor(ContextCompat.getColor(getBaseContext(), R.color.list_item_normal_state));
+                    selectedInstances.remove(listView.getItemIdAtPosition(position));
+                }
+            }
+
+            @Override
+            public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+                switch (item.getItemId()) {
+                    case R.id.delete:
+                        int checkedItemCount = getCheckedCount();
+                        logger.logAction(this, "deleteButton", Integer.toString(checkedItemCount));
+                        if (checkedItemCount > 0) {
+                            createDeleteInstancesDialog();
+                        } else {
+                            ToastUtils.showShortToast(R.string.noselect_error);
+                        }
+                        /*// Calls getSelectedIds method from ListViewAdapter Class
+                        SparseBooleanArray selected = listviewadapter
+                                .getSelectedIds();
+                        // Captures all selected ids with a loop
+                        for (int i = (selected.size() - 1); i >= 0; i--) {
+                            if (selected.valueAt(i)) {
+                                WorldPopulation selecteditem = listviewadapter
+                                        .getItem(selected.keyAt(i));
+                                // Remove selected items following the ids
+                                listviewadapter.remove(selecteditem);
+                            }
+                        }*/
+                        ToastUtils.showShortToast(selectedInstances.size() + " deleted");
+                        // Close CAB
+                        mode.finish();
+                        return true;
+                    case R.id.clearAll:
+                        setAllToCheckedState(listView, false);
+                        return true;
+                    case R.id.selectAll:
+                        setAllToCheckedState(listView, true);
+                        return true;
+                    default:
+                        return false;
+                }
+            }
+
+            @Override
+            public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+                getMenuInflater().inflate(R.menu.delete_menu, menu);
+                selectedInstances = new LinkedHashSet<>();
+                return true;
+            }
+
+            @Override
+            public void onDestroyActionMode(ActionMode mode) {
+                for (int i = 0; i < listView.getCount(); i++) {
+                    listView.getChildAt(i).setBackgroundColor(ContextCompat.getColor(getBaseContext(), R.color.list_item_normal_state));
+                }
+                listAdapter.notifyDataSetChanged();
+            }
+
+            @Override
+            public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
+                return false;
+            }
+        });
     }
 
     @Override
     protected void onResume() {
+        if (deleteInstancesTask != null) {
+            deleteInstancesTask.setDeleteListener(this);
+        }
         if (instanceSyncTask != null) {
             instanceSyncTask.setDiskSyncListener(this);
         }
         super.onResume();
+        // async task may have completed while we were reorienting...
+        if (deleteInstancesTask != null
+                && deleteInstancesTask.getStatus() == AsyncTask.Status.FINISHED) {
+            deleteComplete(deleteInstancesTask.getDeleteCount());
+        }
 
         if (instanceSyncTask.getStatus() == AsyncTask.Status.FINISHED) {
             syncComplete(instanceSyncTask.getStatusMessage());
@@ -172,8 +263,14 @@ public class InstanceUploaderList extends InstanceListActivity
 
     @Override
     protected void onPause() {
+        if (deleteInstancesTask != null) {
+            deleteInstancesTask.setDeleteListener(null);
+        }
         if (instanceSyncTask != null) {
             instanceSyncTask.setDiskSyncListener(null);
+        }
+        if (alertDialog != null && alertDialog.isShowing()) {
+            alertDialog.dismiss();
         }
         super.onPause();
     }
@@ -303,7 +400,7 @@ public class InstanceUploaderList extends InstanceListActivity
         String[] data = new String[]{InstanceColumns.DISPLAY_NAME, InstanceColumns.DISPLAY_SUBTEXT};
         int[] view = new int[]{R.id.text1, R.id.text2};
 
-        listAdapter = new SimpleCursorAdapter(this, R.layout.two_item_multiple_choice, getCursor(), data, view);
+        listAdapter = new SimpleCursorAdapter(this, R.layout.checkable_list_item, getCursor(), data, view);
         listView.setAdapter(listAdapter);
         checkPreviouslyCheckedItems();
     }
@@ -367,7 +464,7 @@ public class InstanceUploaderList extends InstanceListActivity
     }
 
     private boolean showSentAndUnsentChoices() {
-        /**
+        /*
          * Create a dialog with options to save and exit, save, or quit without
          * saving
          */
@@ -409,5 +506,84 @@ public class InstanceUploaderList extends InstanceListActivity
                 }).create();
         alertDialog.show();
         return true;
+    }
+
+    @Override
+    public void deleteComplete(int deletedInstances) {
+        Timber.i("Delete instances complete");
+        logger.logAction(this, "deleteComplete",
+                Integer.toString(deletedInstances));
+        final int toDeleteCount = deleteInstancesTask.getToDeleteCount();
+
+        if (deletedInstances == toDeleteCount) {
+            // all deletes were successful
+            ToastUtils.showShortToast(getString(R.string.file_deleted_ok, String.valueOf(deletedInstances)));
+        } else {
+            // had some failures
+            Timber.e("Failed to delete %d instances", (toDeleteCount - deletedInstances));
+            ToastUtils.showLongToast(getString(R.string.file_deleted_error,
+                    String.valueOf(toDeleteCount - deletedInstances),
+                    String.valueOf(toDeleteCount)));
+        }
+        deleteInstancesTask = null;
+        listView.clearChoices(); // doesn't unset the checkboxes
+        for (int i = 0; i < listView.getCount(); ++i) {
+            listView.setItemChecked(i, false);
+        }
+        //deleteButton.setEnabled(false);
+    }
+
+    /*
+     * Create the instance delete dialog
+     */
+    private void createDeleteInstancesDialog() {
+        logger.logAction(this, "createDeleteInstancesDialog",
+                "show");
+
+        alertDialog = new AlertDialog.Builder(this).create();
+        alertDialog.setTitle(getString(R.string.delete_file));
+        alertDialog.setMessage(getString(R.string.delete_confirm,
+                String.valueOf(getCheckedCount())));
+        DialogInterface.OnClickListener dialogYesNoListener =
+                new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int i) {
+                        switch (i) {
+                            case DialogInterface.BUTTON_POSITIVE: // delete
+                                logger.logAction(this,
+                                        "createDeleteInstancesDialog", "delete");
+                                deleteSelectedInstances();
+                                if (listView.getCount() == getCheckedCount()) {
+                                    //toggleButton.setEnabled(false);
+                                }
+                                break;
+                            case DialogInterface.BUTTON_NEGATIVE: // do nothing
+                                logger.logAction(this,
+                                        "createDeleteInstancesDialog", "cancel");
+                                break;
+                        }
+                    }
+                };
+        alertDialog.setCancelable(false);
+        alertDialog.setButton(DialogInterface.BUTTON_POSITIVE, getString(R.string.delete_yes),
+                dialogYesNoListener);
+        alertDialog.setButton(DialogInterface.BUTTON_NEGATIVE, getString(R.string.delete_no),
+                dialogYesNoListener);
+        alertDialog.show();
+    }
+
+    /*
+     * Deletes the selected files. Content provider handles removing the files
+     * from the filesystem.
+     */
+    private void deleteSelectedInstances() {
+        if (deleteInstancesTask == null) {
+            deleteInstancesTask = new DeleteInstancesTask();
+            deleteInstancesTask.setContentResolver(getContentResolver());
+            deleteInstancesTask.setDeleteListener(this);
+            deleteInstancesTask.execute(getCheckedIdObjects());
+        } else {
+            ToastUtils.showLongToast(R.string.file_delete_in_progress);
+        }
     }
 }

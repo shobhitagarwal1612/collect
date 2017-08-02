@@ -21,4 +21,7 @@ the License.
     <color name="dark_overlay">#898989</color>
     <color name="tintColorDark">#1b76be</color>
 
+    <color name="list_divider">#979797</color>
+    <color name="list_item_selected_state">#b6d8ed</color>
+    <color name="list_item_normal_state">#FFFFFF</color>
 </resources>
