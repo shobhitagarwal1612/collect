@@ -23,9 +23,6 @@ import android.widget.TextView;
 
 import org.odk.collect.android.R;
 import org.odk.collect.android.listeners.FormClickListener;
-import org.odk.collect.android.logic.FormGroup;
-
-import java.util.ArrayList;
 
 /**
  * Implementation of cursor adapter that displays the version of a form if a form has a version.
@@ -38,15 +35,13 @@ public class FormCursorAdapter extends SimpleCursorAdapter {
     private final String versionColumnName;
     private final ViewBinder originalBinder;
     private final FormClickListener listener;
-    private final ArrayList<FormGroup> formList;
 
     public FormCursorAdapter(String versionColumnName, Context context, int layout,
-                             Cursor c, String[] from, int[] to, FormClickListener listener, ArrayList<FormGroup> formList) {
+                             Cursor c, String[] from, int[] to, FormClickListener listener) {
         super(context, layout, c, from, to);
         this.versionColumnName = versionColumnName;
         this.context = context;
         this.listener = listener;
-        this.formList = formList;
         originalBinder = getViewBinder();
         setViewBinder(new ViewBinder() {
 
@@ -102,10 +97,6 @@ public class FormCursorAdapter extends SimpleCursorAdapter {
             }
         });
 
-        FormGroup form = new FormGroup();
-        form.setFormId(formID);
-        formList.add(form);
-
-        listener.updateCount(view, form);
+        listener.updateCount(view, formID);
     }
 }
