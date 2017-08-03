@@ -27,6 +27,7 @@ import org.odk.collect.android.dao.FormsDao;
 import org.odk.collect.android.dao.InstancesDao;
 import org.odk.collect.android.listeners.DiskSyncListener;
 import org.odk.collect.android.listeners.FormClickListener;
+import org.odk.collect.android.logic.FormGroup;
 import org.odk.collect.android.preferences.AboutPreferencesActivity;
 import org.odk.collect.android.preferences.AdminKeys;
 import org.odk.collect.android.preferences.AdminPreferencesActivity;
@@ -36,6 +37,9 @@ import org.odk.collect.android.provider.FormsProviderAPI;
 import org.odk.collect.android.tasks.DiskSyncTask;
 import org.odk.collect.android.utilities.ApplicationConstants;
 import org.odk.collect.android.utilities.PlayServicesUtil;
+import org.odk.collect.android.utilities.ToastUtils;
+
+import java.util.ArrayList;
 
 import timber.log.Timber;
 
@@ -49,6 +53,7 @@ public class NewMainActivity extends FormListActivity implements DiskSyncListene
     private static final boolean EXIT = true;
     private static final String syncMsgKey = "syncmsgkey";
     private static final int PASSWORD_DIALOG = 1;
+    ArrayList<FormGroup> formsList;
     private DiskSyncTask diskSyncTask;
     private FloatingActionButton fab;
     private FloatingActionButton fab1;
@@ -130,6 +135,24 @@ public class NewMainActivity extends FormListActivity implements DiskSyncListene
             status = getString(R.string.form_scan_starting);
             Snackbar.make(fab, status, Snackbar.LENGTH_LONG).show();
         }
+
+        listView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+            @Override
+            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+                if (formsList == null) {
+                    return false;
+                }
+
+                String formName = ((TextView) view.findViewById(R.id.text1)).getText().toString();
+                if (formsList.get(position).getSaved() > 0) {
+                    createDeleteDialog(formName, formsList.get(position), false);
+                } else {
+                    createDeleteDialog(formName, formsList.get(position), true);
+                }
+
+                return true;
+            }
+        });
     }
 
     @Override
@@ -210,6 +233,8 @@ public class NewMainActivity extends FormListActivity implements DiskSyncListene
     }
 
     private void setupAdapter() {
+        formsList = new ArrayList<>();
+
         String[] data = new String[]{
                 FormsProviderAPI.FormsColumns.DISPLAY_NAME,
                 FormsProviderAPI.FormsColumns.DISPLAY_SUBTEXT,
@@ -219,7 +244,7 @@ public class NewMainActivity extends FormListActivity implements DiskSyncListene
         int[] view = new int[]{R.id.text1, R.id.text2, R.id.text3, R.id.text4};
 
         listAdapter =
-                new FormCursorAdapter(FormsProviderAPI.FormsColumns.JR_VERSION, this, R.layout.form_list_item, getCursor(), data, view, this);
+                new FormCursorAdapter(FormsProviderAPI.FormsColumns.JR_VERSION, this, R.layout.form_list_item, getCursor(), data, view, this, formsList);
 
         listView.setAdapter(listAdapter);
     }
@@ -269,13 +294,41 @@ public class NewMainActivity extends FormListActivity implements DiskSyncListene
         alertDialog.show();
     }
 
+    private void createDeleteDialog(final String formName, FormGroup formGroup, final boolean canDelete) {
+
+        Collect.getInstance().getActivityLogger().logAction(this, "createErrorDialog", "show");
+
+        AlertDialog alertDialog = new AlertDialog.Builder(this).create();
+        alertDialog.setIcon(R.drawable.ic_delete_black_36dp);
+        alertDialog.setTitle(formName);
+        alertDialog.setMessage(canDelete ? "Are you sure you want to delete this form?" :
+                "You still have some unsent instances of this form.\nTry deleting them or sending them before removing this form.");
+        alertDialog.setCancelable(true);
+        if (canDelete) {
+            alertDialog.setButton(DialogInterface.BUTTON_POSITIVE, "Yes", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    ToastUtils.showShortToast("deleting " + formName);
+                }
+            });
+        }
+        alertDialog.setButton(DialogInterface.BUTTON_NEGATIVE, canDelete ? "Cancel" : "Close", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+            }
+        });
+        alertDialog.show();
+    }
+
     @Override
     public void editSavedClicked(String formID, int position) {
+        Collect.getInstance().getActivityLogger()
+                .logAction(this, ApplicationConstants.FormModes.EDIT_SAVED, "click");
+
         long idFormsTable = listView.getAdapter().getItemId(position);
         Uri formUri = ContentUris.withAppendedId(FormsProviderAPI.FormsColumns.CONTENT_URI, idFormsTable);
 
-        Collect.getInstance().getActivityLogger()
-                .logAction(this, ApplicationConstants.FormModes.EDIT_SAVED, "click");
         Intent intent = new Intent(this, InstanceChooserList.class);
         intent.putExtra(ApplicationConstants.BundleKeys.FORM_MODE,
                 ApplicationConstants.FormModes.EDIT_SAVED);
@@ -306,13 +359,13 @@ public class NewMainActivity extends FormListActivity implements DiskSyncListene
     }
 
     @Override
-    public void updateCount(View view, String formID) {
+    public void updateCount(View view, FormGroup form) {
 
         InstancesDao instancesDao = new InstancesDao();
 
         // count for finalized instances
         try {
-            finalizedCursor = instancesDao.getFinalizedInstancesCursor(formID);
+            finalizedCursor = instancesDao.getFinalizedInstancesCursor(form.getFormId());
         } catch (Exception e) {
             createErrorDialog(e.getMessage(), EXIT);
             return;
@@ -322,10 +375,11 @@ public class NewMainActivity extends FormListActivity implements DiskSyncListene
             startManagingCursor(finalizedCursor);
         }
         completedCount = finalizedCursor != null ? finalizedCursor.getCount() : 0;
+        form.setFinalized(completedCount);
 
         // count for saved instances
         try {
-            savedCursor = instancesDao.getUnsentInstancesCursor(formID);
+            savedCursor = instancesDao.getUnsentInstancesCursor(form.getFormId());
         } catch (Exception e) {
             createErrorDialog(e.getMessage(), EXIT);
             return;
@@ -335,10 +389,11 @@ public class NewMainActivity extends FormListActivity implements DiskSyncListene
             startManagingCursor(savedCursor);
         }
         savedCount = savedCursor != null ? savedCursor.getCount() : 0;
+        form.setSaved(savedCount);
 
         //count for view sent form
         try {
-            viewSentCursor = instancesDao.getSentInstancesCursor(formID);
+            viewSentCursor = instancesDao.getSentInstancesCursor(form.getFormId());
         } catch (Exception e) {
             createErrorDialog(e.getMessage(), EXIT);
             return;
@@ -347,6 +402,7 @@ public class NewMainActivity extends FormListActivity implements DiskSyncListene
             startManagingCursor(viewSentCursor);
         }
         viewSentCount = viewSentCursor != null ? viewSentCursor.getCount() : 0;
+        form.setSent(viewSentCount);
 
         updateButtons(view);
     }
