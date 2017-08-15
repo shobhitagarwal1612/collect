@@ -15,7 +15,6 @@ the License.
 
 <android.support.design.widget.CoordinatorLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/coordinator"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
@@ -42,11 +41,11 @@ the License.
                     android:paddingEnd="8dip"
                     android:paddingLeft="8dip"
                     android:paddingRight="8dip"
-                    android:visibility="gone"
                     android:paddingStart="8dip"
                     android:paddingTop="4dip"
                     android:text="@string/form_scan_starting"
-                    android:textSize="14sp"/>
+                    android:textSize="14sp"
+                    android:visibility="gone"/>
 
         <ListView
             android:id="@id/android:list"

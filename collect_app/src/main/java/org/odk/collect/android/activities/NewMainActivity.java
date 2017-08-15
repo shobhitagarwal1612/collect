@@ -352,7 +352,6 @@ public class NewMainActivity extends FormListActivity implements DiskSyncListene
         intent.putExtra(ApplicationConstants.BundleKeys.FORM_MODE,
                 ApplicationConstants.FormModes.EDIT_SAVED);
         intent.putExtra(FormsProviderAPI.FormsColumns.JR_FORM_ID, formID);
-        intent.putExtra("formUri", formUri);
         startActivity(intent);
     }
 
