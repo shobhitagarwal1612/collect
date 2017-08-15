@@ -5,8 +5,6 @@
             <solid android:color="@color/tintColorDark"/>
             <padding
                 android:right="12dp"/>
-
-            <corners android:radius="30dp"/>
         </shape>
     </item>
     <item>
@@ -14,8 +12,6 @@
             <solid android:color="@color/tintColor"/>
             <padding
                 android:right="12dp"/>
-
-            <corners android:radius="30dp"/>
         </shape>
     </item>
 </selector>

@@ -345,9 +345,6 @@ public class NewMainActivity extends FormListActivity implements DiskSyncListene
         Collect.getInstance().getActivityLogger()
                 .logAction(this, ApplicationConstants.FormModes.EDIT_SAVED, "click");
 
-        long idFormsTable = listView.getAdapter().getItemId(position);
-        Uri formUri = ContentUris.withAppendedId(FormsProviderAPI.FormsColumns.CONTENT_URI, idFormsTable);
-
         Intent intent = new Intent(this, InstanceChooserList.class);
         intent.putExtra(ApplicationConstants.BundleKeys.FORM_MODE,
                 ApplicationConstants.FormModes.EDIT_SAVED);
