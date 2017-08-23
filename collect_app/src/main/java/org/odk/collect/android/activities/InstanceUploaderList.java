@@ -503,6 +503,11 @@ public class InstanceUploaderList extends InstanceListActivity
         //deleteButton.setEnabled(false);
     }
 
+    @Override
+    public void progressUpdate(int progress, int total) {
+
+    }
+
     /*
      * Create the instance delete dialog
      */

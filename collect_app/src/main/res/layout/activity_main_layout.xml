@@ -39,7 +39,7 @@ the License.
                 android:background="#eee"
                 android:orientation="vertical">
 
-                <include layout="@layout/search_box_layout"/>
+                <!--<include layout="@layout/search_box_layout"/>-->
 
                 <ListView
                     android:id="@id/android:list"

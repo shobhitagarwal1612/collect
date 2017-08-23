@@ -24,4 +24,5 @@ the License.
     <color name="list_divider">#979797</color>
     <color name="list_item_selected_state">#b6d8ed</color>
     <color name="list_item_normal_state">#FFFFFF</color>
+    <color name="black">#000000</color>
 </resources>

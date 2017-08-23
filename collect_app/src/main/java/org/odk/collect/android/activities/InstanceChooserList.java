@@ -379,6 +379,11 @@ public class InstanceChooserList extends InstanceListActivity implements DiskSyn
         //deleteButton.setEnabled(false);
     }
 
+    @Override
+    public void progressUpdate(int progress, int total) {
+
+    }
+
 
     /**
      * Create the instance delete dialog
