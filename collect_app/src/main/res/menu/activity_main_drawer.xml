@@ -7,6 +7,10 @@
             android:icon="@drawable/ic_home_black_24dp"
             android:title="Home"/>
         <item
+            android:id="@+id/nav_send_all"
+            android:icon="@drawable/ic_send_black_24dp"
+            android:title="Send all forms"/>
+        <item
             android:id="@+id/nav_sent_forms"
             android:icon="@drawable/ic_history_black_24dp"
             android:title="View Sent Forms"/>
