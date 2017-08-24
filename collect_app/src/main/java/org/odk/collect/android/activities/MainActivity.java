@@ -8,6 +8,7 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
@@ -15,7 +16,6 @@ import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.CardView;
-import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -62,28 +62,20 @@ public class MainActivity extends FormListActivity
     private static final int PASSWORD_DIALOG = 1;
     private static final String syncMsgKey = "syncMsgKey";
     private static final String FORM_CHOOSER_LIST_SORTING_ORDER = "formChooserListSortingOrder";
-
+    BackgroundTasks backgroundTasks;
     private String status;
-
     // floating buttons
     private FloatingActionButton fab;
     private FloatingActionButton fab1;
     private FloatingActionButton fab2;
-
     private CardView cardViewAggregate;
     private CardView cardViewGoogleDrive;
-
     private FrameLayout frameLayout;
-
     private Animation fabOpen;
     private Animation fabClose;
     private Animation rotateForward;
     private Animation rotateBackward;
-
     private AlertDialog alertDialog;
-
-    BackgroundTasks backgroundTasks;
-
     // cursors
     private Cursor finalizedCursor;
     private Cursor savedCursor;
@@ -307,53 +299,6 @@ public class MainActivity extends FormListActivity
     }
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        Collect.getInstance().getActivityLogger()
-                .logAction(this, "onCreateOptionsMenu", "show");
-        super.onCreateOptionsMenu(menu);
-
-        getMenuInflater().inflate(R.menu.main_menu, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.menu_about:
-                Collect.getInstance()
-                        .getActivityLogger()
-                        .logAction(this, "onOptionsItemSelected",
-                                "MENU_ABOUT");
-                Intent aboutIntent = new Intent(this, AboutPreferencesActivity.class);
-                startActivity(aboutIntent);
-                return true;
-            case R.id.menu_general_preferences:
-                Collect.getInstance()
-                        .getActivityLogger()
-                        .logAction(this, "onOptionsItemSelected",
-                                "MENU_PREFERENCES");
-                Intent ig = new Intent(this, PreferencesActivity.class);
-                startActivity(ig);
-                return true;
-            case R.id.menu_admin_preferences:
-                Collect.getInstance().getActivityLogger()
-                        .logAction(this, "onOptionsItemSelected", "MENU_ADMIN");
-                String pw = (String) AdminSharedPreferences.getInstance().get(AdminKeys.KEY_ADMIN_PW);
-                if ("".equalsIgnoreCase(pw)) {
-                    Intent i = new Intent(getApplicationContext(),
-                            AdminPreferencesActivity.class);
-                    startActivity(i);
-                } else {
-                    showDialog(PASSWORD_DIALOG);
-                    Collect.getInstance().getActivityLogger()
-                            .logAction(this, "createAdminPasswordDialog", "show");
-                }
-                return true;
-        }
-        return super.onOptionsItemSelected(item);
-    }
-
-    @Override
     protected void updateAdapter() {
         listAdapter.changeCursor(getCursor());
 
@@ -369,11 +314,34 @@ public class MainActivity extends FormListActivity
 
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
-    public boolean onNavigationItemSelected(MenuItem item) {
+    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         // Handle navigation view item clicks here.
         int id = item.getItemId();
 
+        switch (id) {
+            case R.id.nav_about:
+                Intent aboutIntent = new Intent(this, AboutPreferencesActivity.class);
+                startActivity(aboutIntent);
+                break;
 
+            case R.id.nav_general_preferences:
+                Intent ig = new Intent(this, PreferencesActivity.class);
+                startActivity(ig);
+                break;
+
+            case R.id.nav_admin_preferences:
+                String pw = (String) AdminSharedPreferences.getInstance().get(AdminKeys.KEY_ADMIN_PW);
+                if ("".equalsIgnoreCase(pw)) {
+                    Intent i = new Intent(getApplicationContext(),
+                            AdminPreferencesActivity.class);
+                    startActivity(i);
+                } else {
+                    showDialog(PASSWORD_DIALOG);
+                    Collect.getInstance().getActivityLogger()
+                            .logAction(this, "createAdminPasswordDialog", "show");
+                }
+                break;
+        }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);

@@ -20,9 +20,13 @@
     <item android:title="Manage">
         <menu>
             <item
-                android:id="@+id/nav_settings"
+                android:id="@+id/nav_general_preferences"
                 android:icon="@drawable/ic_settings_black_24dp"
-                android:title="Settings"/>
+                android:title="@string/general_preferences"/>
+            <item
+                android:id="@+id/nav_admin_preferences"
+                android:icon="@drawable/ic_perm_identity_black_24dp"
+                android:title="@string/admin_preferences"/>
             <item
                 android:id="@+id/nav_share"
                 android:icon="@drawable/ic_share_black_24dp"
