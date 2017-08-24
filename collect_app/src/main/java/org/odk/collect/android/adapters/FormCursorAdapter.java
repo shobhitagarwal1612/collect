@@ -36,9 +36,9 @@ public class FormCursorAdapter extends SimpleCursorAdapter {
     private final ViewBinder originalBinder;
     private final FormClickListener listener;
 
-    public FormCursorAdapter(String versionColumnName, Context context, int layout,
-                             Cursor c, String[] from, int[] to, FormClickListener listener) {
-        super(context, layout, c, from, to);
+    public FormCursorAdapter(String versionColumnName, Context context, Cursor c,
+                             String[] from, int[] to, FormClickListener listener) {
+        super(context, R.layout.form_list_item2, c, from, to);
         this.versionColumnName = versionColumnName;
         this.context = context;
         this.listener = listener;
@@ -94,6 +94,13 @@ public class FormCursorAdapter extends SimpleCursorAdapter {
             @Override
             public void onClick(View v) {
                 listener.viewSentClicked(formID);
+            }
+        });
+        view.findViewById(R.id.fill_form).setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+                listener.itemClicked(getCursor().getPosition());
             }
         });
 

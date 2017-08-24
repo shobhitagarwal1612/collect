@@ -32,7 +32,6 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
@@ -116,7 +115,6 @@ abstract class AppListActivity extends AppCompatActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         listView = (ListView) findViewById(android.R.id.list);
-        listView.setOnItemClickListener((AdapterView.OnItemClickListener) this);
 
         TextView emptyView = (TextView) findViewById(android.R.id.empty);
         listView.setEmptyView(emptyView);

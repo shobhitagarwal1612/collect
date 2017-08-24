@@ -42,11 +42,9 @@ import org.odk.collect.android.utilities.ToastUtils;
 
 import timber.log.Timber;
 
-/**
- * Created by shobhit on 26/7/17.
- */
 
-public class NewMainActivity extends FormListActivity implements DiskSyncListener, AdapterView.OnItemClickListener, FormClickListener, View.OnClickListener, DeleteFormsListener {
+public class NewMainActivity extends FormListActivity implements DiskSyncListener,
+        FormClickListener, View.OnClickListener, DeleteFormsListener {
     private static final String FORM_CHOOSER_LIST_SORTING_ORDER = "formChooserListSortingOrder";
 
     private static final boolean EXIT = true;
@@ -170,26 +168,6 @@ public class NewMainActivity extends FormListActivity implements DiskSyncListene
         outState.putString(syncMsgKey, status);
     }
 
-    /**
-     * Stores the path of selected form and finishes.
-     */
-    @Override
-    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        // get uri to form
-        long idFormsTable = listView.getAdapter().getItemId(position);
-        Uri formUri = ContentUris.withAppendedId(FormsProviderAPI.FormsColumns.CONTENT_URI, idFormsTable);
-        String action = getIntent().getAction();
-        if (Intent.ACTION_PICK.equals(action)) {
-            // caller is waiting on a picked form
-            setResult(RESULT_OK, new Intent().setData(formUri));
-        } else {
-            // caller wants to view/edit a form, so launch formentryactivity
-            Intent intent = new Intent(Intent.ACTION_EDIT, formUri);
-            intent.putExtra(ApplicationConstants.BundleKeys.FORM_MODE, ApplicationConstants.FormModes.EDIT_SAVED);
-            startActivity(intent);
-        }
-    }
-
     @Override
     protected void onResume() {
         setupAdapter();
@@ -259,8 +237,8 @@ public class NewMainActivity extends FormListActivity implements DiskSyncListene
         };
         int[] view = new int[]{R.id.text1, R.id.text2, R.id.text3, R.id.text4};
 
-        listAdapter =
-                new FormCursorAdapter(FormsProviderAPI.FormsColumns.JR_VERSION, this, R.layout.form_list_item, getCursor(), data, view, this);
+        listAdapter = new FormCursorAdapter(FormsProviderAPI.FormsColumns.JR_VERSION,
+                this, getCursor(), data, view, this);
 
         listView.setAdapter(listAdapter);
     }
@@ -370,6 +348,23 @@ public class NewMainActivity extends FormListActivity implements DiskSyncListene
                 ApplicationConstants.FormModes.VIEW_SENT);
         i.putExtra(FormsProviderAPI.FormsColumns.JR_FORM_ID, formID);
         startActivity(i);
+    }
+
+    @Override
+    public void itemClicked(int position) {
+        // get uri to form
+        long idFormsTable = listView.getAdapter().getItemId(position);
+        Uri formUri = ContentUris.withAppendedId(FormsProviderAPI.FormsColumns.CONTENT_URI, idFormsTable);
+        String action = getIntent().getAction();
+        if (Intent.ACTION_PICK.equals(action)) {
+            // caller is waiting on a picked form
+            setResult(RESULT_OK, new Intent().setData(formUri));
+        } else {
+            // caller wants to view/edit a form, so launch formentryactivity
+            Intent intent = new Intent(Intent.ACTION_EDIT, formUri);
+            intent.putExtra(ApplicationConstants.BundleKeys.FORM_MODE, ApplicationConstants.FormModes.EDIT_SAVED);
+            startActivity(intent);
+        }
     }
 
     @Override

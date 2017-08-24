@@ -514,8 +514,8 @@
     <string name="form_delete_message">Deleting selected forms</string>
     <string name="deleting_form_dialog_update_message">Deleting form: %1$d out of %2$d </string>
     <string name="search">Search</string>
-    <string name="edit_saved">Edit saved</string>
-    <string name="send_finalized">Send finalized</string>
+    <string name="edit_saved">Saved</string>
+    <string name="send_finalized">Finalized</string>
     <string name="view_sent">Sent</string>
     <string name="from_aggregate">From Aggregate</string>
     <string name="from_google_drive">From Google Drive</string>

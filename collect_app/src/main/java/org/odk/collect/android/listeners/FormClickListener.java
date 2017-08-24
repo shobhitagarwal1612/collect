@@ -2,9 +2,6 @@ package org.odk.collect.android.listeners;
 
 import android.view.View;
 
-/**
- * Created by shobhit on 27/7/17.
- */
 
 public interface FormClickListener {
 
@@ -15,4 +12,6 @@ public interface FormClickListener {
     void updateCount(View view, String formId);
 
     void viewSentClicked(String formID);
+
+    void itemClicked(int position);
 }
