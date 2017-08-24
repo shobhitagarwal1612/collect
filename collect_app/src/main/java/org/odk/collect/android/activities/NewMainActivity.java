@@ -48,7 +48,7 @@ import org.odk.collect.android.utilities.ToastUtils;
 
 import timber.log.Timber;
 
-import static org.odk.collect.android.preferences.PreferenceKeys.KEY_DISPLAY_SHOWCASE_VIEW;
+import static org.odk.collect.android.preferences.PreferenceKeys.KEY_ADD_FORM_SHOWCASE_VIEW;
 
 
 public class NewMainActivity extends FormListActivity implements DiskSyncListener,
@@ -163,7 +163,7 @@ public class NewMainActivity extends FormListActivity implements DiskSyncListene
             backgroundTasks.diskSyncTask.execute((Void[]) null);
         }
 
-        boolean displayShowCase = (boolean) GeneralSharedPreferences.getInstance().get(KEY_DISPLAY_SHOWCASE_VIEW);
+        boolean displayShowCase = (boolean) GeneralSharedPreferences.getInstance().get(KEY_ADD_FORM_SHOWCASE_VIEW);
         if (displayShowCase) {
             RelativeLayout.LayoutParams lps = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
             lps.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
@@ -183,7 +183,7 @@ public class NewMainActivity extends FormListActivity implements DiskSyncListene
 
             sv.setButtonPosition(lps);
 
-            GeneralSharedPreferences.getInstance().save(KEY_DISPLAY_SHOWCASE_VIEW, false);
+            GeneralSharedPreferences.getInstance().save(KEY_ADD_FORM_SHOWCASE_VIEW, false);
         }
     }
 
@@ -202,10 +202,6 @@ public class NewMainActivity extends FormListActivity implements DiskSyncListene
     @Override
     protected void onResume() {
         setupAdapter();
-
-        if (getFilterText().equals("") && listAdapter.getCursor().getCount() == 0) {
-            GeneralSharedPreferences.getInstance().save(KEY_DISPLAY_SHOWCASE_VIEW, true);
-        }
 
         // hook up to receive completion events
         backgroundTasks.diskSyncTask.setDiskSyncListener(this);
@@ -286,6 +282,10 @@ public class NewMainActivity extends FormListActivity implements DiskSyncListene
     @Override
     protected void updateAdapter() {
         listAdapter.changeCursor(getCursor());
+
+        if (getFilterText().equals("") && listAdapter.getCursor().getCount() == 0) {
+            GeneralSharedPreferences.getInstance().save(KEY_ADD_FORM_SHOWCASE_VIEW, true);
+        }
     }
 
     private Cursor getCursor() {

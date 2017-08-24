@@ -31,11 +31,16 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnLongClickListener;
+import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ListView;
+import android.widget.RelativeLayout;
 import android.widget.SimpleCursorAdapter;
+
+import com.github.amlcurran.showcaseview.ShowcaseView;
+import com.github.amlcurran.showcaseview.targets.ViewTarget;
 
 import org.odk.collect.android.R;
 import org.odk.collect.android.dao.InstancesDao;
@@ -56,6 +61,8 @@ import java.util.LinkedHashSet;
 import java.util.List;
 
 import timber.log.Timber;
+
+import static org.odk.collect.android.preferences.PreferenceKeys.KEY_SEND_FORM_SHOWCASE_VIEW;
 
 /**
  * Responsible for displaying all the valid forms in the forms directory. Stores
@@ -373,6 +380,29 @@ public class InstanceUploaderList extends InstanceListActivity
         listAdapter = new SimpleCursorAdapter(this, R.layout.checkable_list_item, getCursor(), data, view);
         listView.setAdapter(listAdapter);
         checkPreviouslyCheckedItems();
+
+        boolean displayShowCase = (boolean) GeneralSharedPreferences.getInstance().get(KEY_SEND_FORM_SHOWCASE_VIEW);
+        if (displayShowCase && listAdapter.getCount() > 0) {
+            RelativeLayout.LayoutParams lps = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+            lps.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
+            lps.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
+            int margin = ((Number) (getResources().getDisplayMetrics().density * 12)).intValue();
+            lps.setMargins(margin, margin, margin, margin);
+
+            ViewTarget target = new ViewTarget(listView.getId(), this);
+            ShowcaseView sv = new ShowcaseView.Builder(this)
+                    .withMaterialShowcase()
+                    .setTarget(target)
+                    .hideOnTouchOutside()
+                    .setStyle(R.style.CustomShowcaseTheme)
+                    .setContentTitle("Send finalized instances")
+                    .setContentText("Long press to select instances\nThen click the send button to upload instances")
+                    .build();
+
+            sv.setButtonPosition(lps);
+
+            GeneralSharedPreferences.getInstance().save(KEY_SEND_FORM_SHOWCASE_VIEW, false);
+        }
     }
 
     @Override
