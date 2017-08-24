@@ -14,11 +14,16 @@ import android.support.v7.widget.CardView;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.AdapterView;
 import android.widget.FrameLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
+
+import com.github.amlcurran.showcaseview.ShowcaseView;
+import com.github.amlcurran.showcaseview.targets.ViewTarget;
 
 import org.odk.collect.android.R;
 import org.odk.collect.android.adapters.FormCursorAdapter;
@@ -32,6 +37,7 @@ import org.odk.collect.android.preferences.AboutPreferencesActivity;
 import org.odk.collect.android.preferences.AdminKeys;
 import org.odk.collect.android.preferences.AdminPreferencesActivity;
 import org.odk.collect.android.preferences.AdminSharedPreferences;
+import org.odk.collect.android.preferences.GeneralSharedPreferences;
 import org.odk.collect.android.preferences.PreferencesActivity;
 import org.odk.collect.android.provider.FormsProviderAPI;
 import org.odk.collect.android.tasks.DeleteFormsTask;
@@ -41,6 +47,8 @@ import org.odk.collect.android.utilities.PlayServicesUtil;
 import org.odk.collect.android.utilities.ToastUtils;
 
 import timber.log.Timber;
+
+import static org.odk.collect.android.preferences.PreferenceKeys.KEY_DISPLAY_SHOWCASE_VIEW;
 
 
 public class NewMainActivity extends FormListActivity implements DiskSyncListener,
@@ -154,6 +162,29 @@ public class NewMainActivity extends FormListActivity implements DiskSyncListene
             backgroundTasks.diskSyncTask.setDiskSyncListener(this);
             backgroundTasks.diskSyncTask.execute((Void[]) null);
         }
+
+        boolean displayShowCase = (boolean) GeneralSharedPreferences.getInstance().get(KEY_DISPLAY_SHOWCASE_VIEW);
+        if (displayShowCase) {
+            RelativeLayout.LayoutParams lps = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+            lps.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
+            lps.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
+            int margin = ((Number) (getResources().getDisplayMetrics().density * 12)).intValue();
+            lps.setMargins(margin, margin, margin, margin);
+
+            ViewTarget target = new ViewTarget(R.id.fab, this);
+            ShowcaseView sv = new ShowcaseView.Builder(this)
+                    .withMaterialShowcase()
+                    .setTarget(target)
+                    .hideOnTouchOutside()
+                    .setStyle(R.style.CustomShowcaseTheme)
+                    .setContentTitle("Add Button")
+                    .setContentText("Tap here to add new forms")
+                    .build();
+
+            sv.setButtonPosition(lps);
+
+            GeneralSharedPreferences.getInstance().save(KEY_DISPLAY_SHOWCASE_VIEW, false);
+        }
     }
 
     @Override
@@ -171,6 +202,10 @@ public class NewMainActivity extends FormListActivity implements DiskSyncListene
     @Override
     protected void onResume() {
         setupAdapter();
+
+        if (getFilterText().equals("") && listAdapter.getCursor().getCount() == 0) {
+            GeneralSharedPreferences.getInstance().save(KEY_DISPLAY_SHOWCASE_VIEW, true);
+        }
 
         // hook up to receive completion events
         backgroundTasks.diskSyncTask.setDiskSyncListener(this);

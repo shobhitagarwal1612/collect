@@ -71,6 +71,8 @@ public final class PreferenceKeys {
            static final String GOOGLE_MAPS_BASEMAP_DEFAULT  = "streets";
            static final String OSM_MAPS_BASEMAP_DEFAULT     = "mapquest_streets";
 
+    public static final String KEY_DISPLAY_SHOWCASE_VIEW    = "displayShowcaseView";
+
     private static HashMap<String, Object> getHashMap() {
         HashMap<String, Object> hashMap = new HashMap<>();
 
@@ -97,6 +99,7 @@ public final class PreferenceKeys {
         hashMap.put(KEY_MAP_SDK,                    "google_maps");
         hashMap.put(KEY_MAP_BASEMAP,                "streets");
         hashMap.put(KEY_AUTOSEND,                   "off");
+        hashMap.put(KEY_DISPLAY_SHOWCASE_VIEW,      true);
         return hashMap;
     }
 
