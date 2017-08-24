@@ -131,7 +131,7 @@ public class MainMenuActivity extends AppCompatActivity {
                 Collect.getInstance().getActivityLogger()
                         .logAction(this, "fillBlankForm", "click");
                 Intent i = new Intent(getApplicationContext(),
-                        NewMainActivity.class);
+                        MainActivity.class);
                 startActivity(i);
             }
         });
