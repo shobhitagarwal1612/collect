@@ -16,6 +16,7 @@
 
 package org.odk.collect.android.activities;
 
+import android.content.DialogInterface;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -299,6 +300,13 @@ abstract class AppListActivity extends AppCompatActivity {
         recyclerView.setItemAnimator(new DefaultItemAnimator());
 
         bottomSheetDialog.setContentView(sheetView);
+
+        bottomSheetDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
+            @Override
+            public void onDismiss(DialogInterface dialog) {
+                isBottomDialogShown = false;
+            }
+        });
 
         if (isBottomDialogShown) {
             bottomSheetDialog.show();
