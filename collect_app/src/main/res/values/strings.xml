@@ -10,8 +10,8 @@
     the specific language governing permissions and limitations under the
     License.
 -->
-<resources xmlns:tools="http://schemas.android.com/tools" tools:locale="en"
-           tools:ignore="MissingTranslation">
+<resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation"
+           tools:locale="en">
     <string name="show_password">Show password</string>
     <string name="activity_not_found">No activity found to handle: %s</string>
     <string name="add_another">Add Group</string>
@@ -521,4 +521,10 @@
     <string name="from_google_drive">From Google Drive</string>
     <string name="open_activity">Open Activity</string>
     <string name="delete">Delete</string>
+    <string name="title_activity_main">MainActivity</string>
+
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+
+    <string name="action_settings">Settings</string>
 </resources>

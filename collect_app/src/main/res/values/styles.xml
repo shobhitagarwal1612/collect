@@ -1,0 +1,6 @@
+<resources>
+
+    <style name="Collect.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar"/>
+
+    <style name="Collect.PopupOverlay" parent="ThemeOverlay.AppCompat.Light"/>
+</resources>

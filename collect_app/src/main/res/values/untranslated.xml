@@ -9,6 +9,7 @@ the specific language governing permissions and limitations under the License. -
 <resources>
     <!-- strings that should not be translated -->
     <string name="app_name" translatable="false">ODK Collect</string>
+    <string name="collect" translatable="false">Collect</string>
     <string name="protocol_odk_default" translatable="false">odk_default</string>
     <string name="protocol_google_sheets" translatable="false">google_sheets</string>
     <string name="protocol_other" translatable="false">other_protocol</string>
