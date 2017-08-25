@@ -16,9 +16,10 @@ the License.
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent">
+    <RelativeLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
 
         <!-- Toolbar -->
         <include layout="@layout/toolbar"/>
@@ -54,13 +55,6 @@ the License.
                 style="@style/emptyViewStyle"
                 android:text="@string/no_items_display_instances"/>
         </LinearLayout>
-
-        <include
-            layout="@layout/toolbar_action_bar_shadow"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/toolbar"/>
-
     </RelativeLayout>
 
     <android.support.design.widget.FloatingActionButton

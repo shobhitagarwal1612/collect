@@ -61,6 +61,7 @@ public class MainActivity extends FormListActivity
     private static final int PASSWORD_DIALOG = 1;
     private static final String syncMsgKey = "syncMsgKey";
     private static final String FORM_CHOOSER_LIST_SORTING_ORDER = "formChooserListSortingOrder";
+    private static final String GOOGLE_PLAY_URL = "https://play.google.com/store/apps/details?id=";
     BackgroundTasks backgroundTasks;
     private String status;
     // floating buttons
@@ -79,11 +80,9 @@ public class MainActivity extends FormListActivity
     private Cursor finalizedCursor;
     private Cursor savedCursor;
     private Cursor viewSentCursor;
-
     private int completedCount;
     private int savedCount;
     private int viewSentCount;
-
     private boolean isFabOpen = false;
 
     @Override
@@ -319,6 +318,17 @@ public class MainActivity extends FormListActivity
                             .logAction(this, "createAdminPasswordDialog", "show");
                 }
                 break;
+
+            case R.id.nav_share:
+                final String APP_PACKAGE_NAME = getPackageName();
+                Intent shareIntent = new Intent(Intent.ACTION_SEND);
+                shareIntent.setType("text/plain");
+                shareIntent.putExtra(Intent.EXTRA_TEXT,
+                        getString(R.string.tell_your_friends_msg) + " " + GOOGLE_PLAY_URL
+                                + APP_PACKAGE_NAME);
+                startActivity(Intent.createChooser(shareIntent,
+                        getString(R.string.tell_your_friends)));
+                break;
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -408,6 +418,17 @@ public class MainActivity extends FormListActivity
         Intent intent = new Intent(this, InstanceUploaderList.class);
         intent.putExtra(FormsProviderAPI.FormsColumns.JR_FORM_ID, formID);
         startActivity(intent);
+    }
+
+    @Override
+    public void viewSentClicked(String formID) {
+        Collect.getInstance().getActivityLogger()
+                .logAction(this, "viewSent", "click");
+        Intent i = new Intent(getApplicationContext(), InstanceChooserList.class);
+        i.putExtra(ApplicationConstants.BundleKeys.FORM_MODE,
+                ApplicationConstants.FormModes.VIEW_SENT);
+        i.putExtra(FormsProviderAPI.FormsColumns.JR_FORM_ID, formID);
+        startActivity(i);
     }
 
     @Override
@@ -503,17 +524,6 @@ public class MainActivity extends FormListActivity
             Timber.d("Cannot update \"View Sent\" button label since the database is closed. "
                     + "Perhaps the app is running in the background?");
         }
-    }
-
-    @Override
-    public void viewSentClicked(String formID) {
-        Collect.getInstance().getActivityLogger()
-                .logAction(this, "viewSent", "click");
-        Intent i = new Intent(getApplicationContext(), InstanceChooserList.class);
-        i.putExtra(ApplicationConstants.BundleKeys.FORM_MODE,
-                ApplicationConstants.FormModes.VIEW_SENT);
-        i.putExtra(FormsProviderAPI.FormsColumns.JR_FORM_ID, formID);
-        startActivity(i);
     }
 
     @Override

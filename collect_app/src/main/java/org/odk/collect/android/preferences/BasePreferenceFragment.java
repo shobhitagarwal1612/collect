@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceScreen;
 import android.support.annotation.Nullable;
+import android.support.design.widget.AppBarLayout;
 import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -17,6 +18,7 @@ import static org.odk.collect.android.preferences.PreferencesActivity.INTENT_KEY
 
 public class BasePreferenceFragment extends PreferenceFragment {
 
+    protected AppBarLayout appBarLayout;
     protected Toolbar toolbar;
     private LinearLayout root;
 
@@ -47,18 +49,21 @@ public class BasePreferenceFragment extends PreferenceFragment {
 
             if (getActivity() instanceof PreferencesActivity) {
                 root = (LinearLayout) ((ViewGroup) view.findViewById(android.R.id.list).getRootView()).getChildAt(0);
-                toolbar = (Toolbar) root.findViewById(R.id.toolbar);
+                appBarLayout = (AppBarLayout) root.findViewById(R.id.appbarLayout);
+                toolbar = (Toolbar) appBarLayout.findViewById(R.id.toolbar);
 
             } else {
                 root = (LinearLayout) view.findViewById(android.R.id.list).getParent().getParent();
-                toolbar = (Toolbar) LayoutInflater.from(getActivity()).inflate(R.layout.toolbar, root, false);
+                appBarLayout = (AppBarLayout) LayoutInflater.from(getActivity()).inflate(R.layout.toolbar, root, false);
+                toolbar = (Toolbar) appBarLayout.findViewById(R.id.toolbar);
 
                 inflateToolbar(preferenceScreen.getTitle());
             }
 
         } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
             root = (LinearLayout) view.findViewById(android.R.id.list).getParent();
-            toolbar = (Toolbar) LayoutInflater.from(getActivity()).inflate(R.layout.toolbar, root, false);
+            appBarLayout = (AppBarLayout) LayoutInflater.from(getActivity()).inflate(R.layout.toolbar, root, false);
+            toolbar = (Toolbar) appBarLayout.findViewById(R.id.toolbar);
 
             inflateToolbar(preferenceScreen.getTitle());
         }
@@ -66,10 +71,7 @@ public class BasePreferenceFragment extends PreferenceFragment {
 
     private void inflateToolbar(CharSequence title) {
         toolbar.setTitle(title);
-        root.addView(toolbar, 0);
-
-        View shadow = LayoutInflater.from(getActivity()).inflate(R.layout.toolbar_action_bar_shadow, root, false);
-        root.addView(shadow, 1);
+        root.addView(appBarLayout, 0);
     }
 
     private void removeAllDisabledPrefs() {

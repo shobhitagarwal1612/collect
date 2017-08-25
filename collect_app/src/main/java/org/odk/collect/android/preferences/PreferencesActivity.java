@@ -17,6 +17,7 @@ package org.odk.collect.android.preferences;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceActivity;
+import android.support.design.widget.AppBarLayout;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.view.ViewGroup;
@@ -101,12 +102,10 @@ public class PreferencesActivity extends PreferenceActivity {
         super.onCreate(savedInstanceState);
 
         ViewGroup root = getRootView();
-        Toolbar toolbar = (Toolbar) View.inflate(this, R.layout.toolbar, null);
+        AppBarLayout appBarLayout = (AppBarLayout) View.inflate(this, R.layout.toolbar, null);
+        Toolbar toolbar = (Toolbar) appBarLayout.findViewById(R.id.toolbar);
         toolbar.setTitle(R.string.general_preferences);
-        View shadow = View.inflate(this, R.layout.toolbar_action_bar_shadow, null);
-
-        root.addView(toolbar, 0);
-        root.addView(shadow, 1);
+        root.addView(appBarLayout, 0);
     }
 
     @Override

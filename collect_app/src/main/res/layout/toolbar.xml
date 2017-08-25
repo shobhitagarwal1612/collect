@@ -1,9 +1,17 @@
-<android.support.v7.widget.Toolbar
+<android.support.design.widget.AppBarLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/toolbar"
+    android:id="@+id/appbarLayout"
     android:layout_width="match_parent"
-    android:layout_height="?attr/actionBarSize"
-    android:background="@color/tintColor"
-    android:minHeight="?attr/actionBarSize"
-    app:popupTheme="@style/Collect.PopupOverlay"/>
+    android:layout_height="wrap_content"
+    android:theme="@style/Collect.AppBarOverlay">
+
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="@color/tintColor"
+        android:minHeight="?attr/actionBarSize"
+        android:theme="@style/Collect.AppBarOverlay"
+        app:popupTheme="@style/Collect.PopupOverlay"/>
+</android.support.design.widget.AppBarLayout>

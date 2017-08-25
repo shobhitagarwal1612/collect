@@ -58,12 +58,6 @@ the License.
                 style="@style/emptyViewStyle"
                 android:text="@string/no_items_display_forms"/>
         </LinearLayout>
-
-        <include
-            layout="@layout/toolbar_action_bar_shadow"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/toolbar"/>
     </RelativeLayout>
 
 </android.support.design.widget.CoordinatorLayout>
