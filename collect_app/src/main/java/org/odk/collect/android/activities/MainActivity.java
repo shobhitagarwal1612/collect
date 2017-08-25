@@ -1,9 +1,13 @@
 package org.odk.collect.android.activities;
 
 import android.app.AlertDialog;
+import android.content.ComponentName;
 import android.content.ContentUris;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
+import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -48,6 +52,8 @@ import org.odk.collect.android.tasks.DiskSyncTask;
 import org.odk.collect.android.utilities.ApplicationConstants;
 import org.odk.collect.android.utilities.PlayServicesUtil;
 import org.odk.collect.android.utilities.ToastUtils;
+
+import java.util.List;
 
 import timber.log.Timber;
 
@@ -320,14 +326,43 @@ public class MainActivity extends FormListActivity
                 break;
 
             case R.id.nav_share:
-                final String APP_PACKAGE_NAME = getPackageName();
                 Intent shareIntent = new Intent(Intent.ACTION_SEND);
                 shareIntent.setType("text/plain");
                 shareIntent.putExtra(Intent.EXTRA_TEXT,
                         getString(R.string.tell_your_friends_msg) + " " + GOOGLE_PLAY_URL
-                                + APP_PACKAGE_NAME);
+                                + getPackageName());
                 startActivity(Intent.createChooser(shareIntent,
                         getString(R.string.tell_your_friends)));
+                break;
+
+            case R.id.nav_review:
+                boolean reviewTaken = false;
+                try {
+                    // Open the google play store app if present
+                    Intent intent = new Intent(Intent.ACTION_VIEW,
+                            Uri.parse("market://details?id=" + getPackageName()));
+                    PackageManager packageManager = getPackageManager();
+                    List<ResolveInfo> list = packageManager.queryIntentActivities(intent, 0);
+                    for (ResolveInfo info : list) {
+                        ActivityInfo activity = info.activityInfo;
+                        if (activity.name.contains("com.google.android")) {
+                            ComponentName name = new ComponentName(
+                                    activity.applicationInfo.packageName,
+                                    activity.name);
+                            intent.setComponent(name);
+                            startActivity(intent);
+                            reviewTaken = true;
+                        }
+                    }
+                } catch (android.content.ActivityNotFoundException anfe) {
+                    Timber.e(anfe);
+                }
+                if (!reviewTaken) {
+                    // Show a list of all available browsers if user doesn't have a default browser
+                    Intent intent = new Intent(Intent.ACTION_VIEW,
+                            Uri.parse(GOOGLE_PLAY_URL + getPackageName()));
+                    startActivity(intent);
+                }
                 break;
         }
 
