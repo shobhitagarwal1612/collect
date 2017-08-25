@@ -14,4 +14,6 @@ public interface FormClickListener {
     void viewSentClicked(String formID);
 
     void itemClicked(int position);
+
+    void onLongClick(View view, long itemId);
 }

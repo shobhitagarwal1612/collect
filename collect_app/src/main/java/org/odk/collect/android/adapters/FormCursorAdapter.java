@@ -78,6 +78,13 @@ public class FormCursorAdapter extends SimpleCursorAdapter {
 
         final String formID = (String) ((TextView) view.findViewById(R.id.text4)).getText();
 
+        view.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                listener.onLongClick(v, getItemId(getCursor().getPosition()));
+                return true;
+            }
+        });
         view.findViewById(R.id.edit_saved).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

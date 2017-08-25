@@ -21,7 +21,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
-import android.widget.AdapterView;
 import android.widget.FrameLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -118,27 +117,6 @@ public class MainActivity extends FormListActivity
             status = getString(R.string.form_scan_starting);
             Snackbar.make(fab, status, Snackbar.LENGTH_LONG).show();
         }
-
-        listView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
-            @Override
-            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-
-                String formName = ((TextView) view.findViewById(R.id.text1)).getText().toString();
-                String editSaved = ((TextView) view.findViewById(R.id.edit_saved)).getText().toString();
-                editSaved = editSaved.split(" ")[0];
-                int savedCount = 0;
-                if (!editSaved.equals("")) {
-                    savedCount = Integer.parseInt(editSaved);
-                }
-                if (savedCount > 0) {
-                    createDeleteDialog(formName, id, false);
-                } else {
-                    createDeleteDialog(formName, id, true);
-                }
-
-                return true;
-            }
-        });
 
         if (backgroundTasks == null) {
             backgroundTasks = new BackgroundTasks();
@@ -552,6 +530,22 @@ public class MainActivity extends FormListActivity
             Intent intent = new Intent(Intent.ACTION_EDIT, formUri);
             intent.putExtra(ApplicationConstants.BundleKeys.FORM_MODE, ApplicationConstants.FormModes.EDIT_SAVED);
             startActivity(intent);
+        }
+    }
+
+    @Override
+    public void onLongClick(View view, long id) {
+        String formName = ((TextView) view.findViewById(R.id.text1)).getText().toString();
+        String editSaved = ((TextView) view.findViewById(R.id.edit_saved)).getText().toString();
+        editSaved = editSaved.split(" ")[0];
+        int savedCount = 0;
+        if (!editSaved.equals("")) {
+            savedCount = Integer.parseInt(editSaved);
+        }
+        if (savedCount > 0) {
+            createDeleteDialog(formName, id, false);
+        } else {
+            createDeleteDialog(formName, id, true);
         }
     }
 
