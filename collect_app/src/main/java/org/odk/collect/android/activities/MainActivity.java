@@ -37,10 +37,10 @@ import org.odk.collect.android.adapters.FormCursorAdapter;
 import org.odk.collect.android.application.Collect;
 import org.odk.collect.android.dao.FormsDao;
 import org.odk.collect.android.dao.InstancesDao;
+import org.odk.collect.android.fragments.dialogs.AboutDialog;
 import org.odk.collect.android.listeners.DeleteFormsListener;
 import org.odk.collect.android.listeners.DiskSyncListener;
 import org.odk.collect.android.listeners.FormClickListener;
-import org.odk.collect.android.preferences.AboutPreferencesActivity;
 import org.odk.collect.android.preferences.AdminKeys;
 import org.odk.collect.android.preferences.AdminPreferencesActivity;
 import org.odk.collect.android.preferences.AdminSharedPreferences;
@@ -303,8 +303,8 @@ public class MainActivity extends FormListActivity
 
         switch (id) {
             case R.id.nav_about:
-                Intent aboutIntent = new Intent(this, AboutPreferencesActivity.class);
-                startActivity(aboutIntent);
+                AboutDialog aboutDialog = new AboutDialog();
+                aboutDialog.show(getSupportFragmentManager(), "");
                 break;
 
             case R.id.nav_general_preferences:
