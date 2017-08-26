@@ -56,9 +56,9 @@ public class SortDialogAdapter extends RecyclerView.Adapter<SortDialogAdapter.Vi
         viewHolder.imgViewIcon.setImageDrawable(DrawableCompat.wrap(viewHolder.imgViewIcon.getDrawable()));
 
         if (position == selectedSortingOrder) {
-            viewHolder.txtViewTitle.setTextColor(context.getResources().getColor(R.color.tintColor));
+            viewHolder.txtViewTitle.setTextColor(context.getResources().getColor(R.color.colorPrimary));
             DrawableCompat.setTint(viewHolder.imgViewIcon.getDrawable(),
-                    context.getResources().getColor(R.color.tintColor));
+                    context.getResources().getColor(R.color.colorPrimary));
         } else {
             viewHolder.txtViewTitle.setTextColor(context.getResources().getColor(R.color.black));
             DrawableCompat.setTintList(viewHolder.imgViewIcon.getDrawable(), null);
@@ -95,8 +95,8 @@ public class SortDialogAdapter extends RecyclerView.Adapter<SortDialogAdapter.Vi
             previousHolder.txtViewTitle.setTextColor(context.getResources().getColor(R.color.black));
             DrawableCompat.setTintList(previousHolder.imgViewIcon.getDrawable(), null);
 
-            txtViewTitle.setTextColor(context.getResources().getColor(R.color.tintColor));
-            DrawableCompat.setTint(imgViewIcon.getDrawable(), context.getResources().getColor(R.color.tintColor));
+            txtViewTitle.setTextColor(context.getResources().getColor(R.color.colorPrimary));
+            DrawableCompat.setTint(imgViewIcon.getDrawable(), context.getResources().getColor(R.color.colorPrimary));
         }
     }
 }

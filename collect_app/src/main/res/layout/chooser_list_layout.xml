@@ -15,49 +15,46 @@ the License.
 
 <android.support.design.widget.CoordinatorLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/coordinator"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:fitsSystemWindows="true">
 
-    <RelativeLayout
+    <!-- Toolbar -->
+    <include layout="@layout/toolbar"/>
+
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-        <!-- Toolbar -->
-        <include layout="@layout/toolbar"/>
-
-        <LinearLayout
+        <TextView
+            android:id="@+id/status_text"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_below="@id/toolbar"
-            android:orientation="vertical">
+            android:layout_height="wrap_content"
+            android:background="#DDDDDD"
+            android:paddingBottom="4dip"
+            android:paddingEnd="8dip"
+            android:paddingLeft="8dip"
+            android:paddingRight="8dip"
+            android:paddingStart="8dip"
+            android:paddingTop="4dip"
+            android:text="@string/form_scan_starting"
+            android:textSize="14sp"
+            android:visibility="gone"/>
 
-            <TextView
-                android:id="@+id/status_text"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="#DDDDDD"
-                android:paddingBottom="4dip"
-                android:paddingEnd="8dip"
-                android:paddingLeft="8dip"
-                android:paddingRight="8dip"
-                android:paddingStart="8dip"
-                android:paddingTop="4dip"
-                android:text="@string/form_scan_starting"
-                android:textSize="14sp"
-                android:visibility="gone"/>
+        <ListView
+            android:id="@id/android:list"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"/>
 
-            <ListView
-                android:id="@id/android:list"
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="1"/>
-
-            <TextView
-                android:id="@android:id/empty"
-                style="@style/emptyViewStyle"
-                android:text="@string/no_items_display_forms"/>
-        </LinearLayout>
-    </RelativeLayout>
+        <TextView
+            android:id="@android:id/empty"
+            style="@style/emptyViewStyle"
+            android:text="@string/no_items_display_forms"/>
+    </LinearLayout>
 
 </android.support.design.widget.CoordinatorLayout>
