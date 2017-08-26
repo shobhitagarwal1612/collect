@@ -8,22 +8,22 @@
   OR CONDITIONS OF ANY KIND, either express or implied. See the License for
   the specific language governing permissions and limitations under the License.
 -->
-<menu xmlns:tools="http://schemas.android.com/tools"
-      xmlns:android="http://schemas.android.com/apk/res/android"
-      xmlns:app="http://schemas.android.com/apk/res-auto">
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+      xmlns:app="http://schemas.android.com/apk/res-auto"
+      xmlns:tools="http://schemas.android.com/tools">
 
     <!-- tools:ignore="AlwaysShowAction" due to #1154 on small screen action is more important
     than title-->
     <item
         android:id="@+id/menu_save"
-        android:icon="@drawable/ic_menu_save"
+        android:icon="@drawable/ic_menu_save_white"
         android:title="@string/save_all_answers"
         app:showAsAction="always"
         tools:ignore="AlwaysShowAction"/>
 
     <item
         android:id="@+id/menu_goto"
-        android:icon="@drawable/ic_menu_goto"
+        android:icon="@drawable/menu_goto_white"
         android:title="@string/view_hierarchy"
         app:showAsAction="always"/>
 
