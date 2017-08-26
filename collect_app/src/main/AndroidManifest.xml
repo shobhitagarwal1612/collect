@@ -153,6 +153,10 @@ the specific language governing permissions and limitations under the License.
 
                 <data android:mimeType="vnd.android.cursor.dir/vnd.odk.instance"/>
             </intent-filter>
+
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".activities.MainActivity"/>
         </activity>
         <activity
             android:name=".activities.FormChooserList"
@@ -188,6 +192,10 @@ the specific language governing permissions and limitations under the License.
 
                 <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
+
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".activities.MainActivity"/>
         </activity>
         <activity
             android:name=".activities.InstanceUploaderActivity"
@@ -199,11 +207,19 @@ the specific language governing permissions and limitations under the License.
         <activity
             android:name=".preferences.PreferencesActivity"
             android:label="@string/app_name"
-            android:theme="@style/AppTheme.SettingsTheme"/>
+            android:theme="@style/AppTheme.SettingsTheme">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".activities.MainActivity"/>
+        </activity>
         <activity
             android:name=".preferences.AdminPreferencesActivity"
             android:label="@string/app_name"
-            android:theme="@style/AppTheme.SettingsTheme"/>
+            android:theme="@style/AppTheme.SettingsTheme">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".activities.MainActivity"/>
+        </activity>
         <activity
             android:name=".activities.FormHierarchyActivity"
             android:label="@string/app_name"/>

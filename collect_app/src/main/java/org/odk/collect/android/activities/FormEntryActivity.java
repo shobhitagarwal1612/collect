@@ -547,6 +547,7 @@ public class FormEntryActivity extends AppCompatActivity implements AnimationLis
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         setTitle(getString(R.string.loading_form));
         setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
     }
 
     /**
@@ -904,6 +905,12 @@ public class FormEntryActivity extends AppCompatActivity implements AnimationLis
 
         menu.findItem(R.id.menu_preferences).setVisible(useability)
                 .setEnabled(useability);
+        return true;
+    }
+
+    @Override
+    public boolean onSupportNavigateUp() {
+        createQuitDialog();
         return true;
     }
 
