@@ -20,7 +20,7 @@
             android:layout_gravity="end"
             android:background="@android:color/transparent"
             android:onClick="showPopup"
-            android:padding="@dimen/padding_small"
+            android:padding="@dimen/padding_medium"
             android:src="@drawable/ic_more_vert_black_24dp"/>
 
         <LinearLayout
@@ -36,7 +36,7 @@
                 android:layout_height="wrap_content"
                 android:gravity="center_vertical"
                 android:padding="@dimen/padding_small"
-                android:textAppearance="?android:attr/textAppearanceLarge"
+                android:textAppearance="?android:attr/textAppearanceMedium"
                 tools:text="Form name"/>
 
             <TextView
@@ -65,13 +65,6 @@
                 android:layout_marginTop="@dimen/margin_large"
                 android:orientation="vertical">
 
-                <Button
-                    android:id="@+id/fill_form"
-                    android:layout_width="match_parent"
-                    android:layout_height="0dp"
-                    android:layout_weight="1"
-                    android:text="Fill form"/>
-
                 <LinearLayout
                     android:id="@+id/buttons"
                     android:layout_width="match_parent"
@@ -90,6 +83,12 @@
                         android:textStyle="bold"
                         tools:text="15 Saved"/>
 
+                    <View
+                        android:layout_width="1dp"
+                        android:layout_height="match_parent"
+                        android:layout_margin="@dimen/margin_small"
+                        android:background="#eee"/>
+
                     <TextView
                         android:id="@+id/send_finalized"
                         android:layout_width="wrap_content"
@@ -101,6 +100,12 @@
                         android:textColor="@drawable/shape_chip_drawable_green"
                         android:textStyle="bold"
                         tools:text="10 Finalized"/>
+
+                    <View
+                        android:layout_width="1dp"
+                        android:layout_height="match_parent"
+                        android:layout_margin="@dimen/margin_small"
+                        android:background="#eee"/>
 
                     <TextView
                         android:id="@+id/view_sent"
@@ -114,6 +119,13 @@
                         android:textStyle="bold"
                         tools:text="10 Sent"/>
                 </LinearLayout>
+
+                <Button
+                    android:id="@+id/fill_form"
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="1"
+                    android:text="Fill form"/>
             </LinearLayout>
 
             <TextView
