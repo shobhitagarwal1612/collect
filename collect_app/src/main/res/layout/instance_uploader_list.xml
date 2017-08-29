@@ -58,7 +58,7 @@ the License.
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
         android:layout_margin="24dp"
-        android:src="@drawable/ic_send_black_24dp"
+        android:src="@drawable/ic_send_white"
         app:backgroundTint="@color/colorPrimary"
         app:elevation="6dp"
         app:pressedTranslationZ="12dp"/>
