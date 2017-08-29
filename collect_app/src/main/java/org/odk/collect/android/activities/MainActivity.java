@@ -20,6 +20,7 @@ import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.CardView;
+import android.support.v7.widget.PopupMenu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -61,7 +62,7 @@ import static org.odk.collect.android.preferences.PreferenceKeys.KEY_ADD_FORM_SH
 
 public class MainActivity extends FormListActivity
         implements NavigationView.OnNavigationItemSelectedListener, DiskSyncListener,
-        FormClickListener, View.OnClickListener, DeleteFormsListener {
+        FormClickListener, View.OnClickListener, DeleteFormsListener, PopupMenu.OnMenuItemClickListener {
 
     private static final boolean EXIT = true;
     private static final int PASSWORD_DIALOG = 1;
@@ -151,6 +152,23 @@ public class MainActivity extends FormListActivity
             sv.setButtonPosition(lps);
 
             GeneralSharedPreferences.getInstance().save(KEY_ADD_FORM_SHOWCASE_VIEW, false);
+        }
+    }
+
+    public void showPopup(View v) {
+        PopupMenu popup = new PopupMenu(this, v);
+        popup.setOnMenuItemClickListener(this);
+        popup.inflate(R.menu.actions);
+        popup.show();
+    }
+
+    @Override
+    public boolean onMenuItemClick(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.delete:
+                return true;
+            default:
+                return false;
         }
     }
 
@@ -302,6 +320,17 @@ public class MainActivity extends FormListActivity
         int id = item.getItemId();
 
         switch (id) {
+            case R.id.nav_send_all:
+                startActivity(new Intent(this, InstanceUploaderList.class));
+                break;
+
+            case R.id.nav_sent_forms:
+                Intent i = new Intent(this, InstanceChooserList.class);
+                i.putExtra(ApplicationConstants.BundleKeys.FORM_MODE,
+                        ApplicationConstants.FormModes.VIEW_SENT);
+                startActivity(i);
+                break;
+
             case R.id.nav_about:
                 AboutDialog aboutDialog = new AboutDialog();
                 aboutDialog.show(getSupportFragmentManager(), "");
@@ -315,7 +344,7 @@ public class MainActivity extends FormListActivity
             case R.id.nav_admin_preferences:
                 String pw = (String) AdminSharedPreferences.getInstance().get(AdminKeys.KEY_ADMIN_PW);
                 if ("".equalsIgnoreCase(pw)) {
-                    Intent i = new Intent(getApplicationContext(),
+                    i = new Intent(getApplicationContext(),
                             AdminPreferencesActivity.class);
                     startActivity(i);
                 } else {

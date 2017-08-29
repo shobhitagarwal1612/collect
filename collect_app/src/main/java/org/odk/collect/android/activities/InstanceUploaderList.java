@@ -417,7 +417,15 @@ public class InstanceUploaderList extends InstanceListActivity
     }
 
     private Cursor getCursor() {
-        String formID = getIntent().getExtras().getString(FormsProviderAPI.FormsColumns.JR_FORM_ID);
+        String formID = "";
+        Bundle bundle = getIntent().getExtras();
+        if (bundle != null) {
+            formID = bundle.getString(FormsProviderAPI.FormsColumns.JR_FORM_ID);
+        }
+
+        if (formID == null) {
+            formID = "";
+        }
 
         Cursor cursor;
         if (showAllMode) {

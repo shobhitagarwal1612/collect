@@ -109,6 +109,7 @@ public class InstanceChooserList extends InstanceListActivity implements DiskSyn
         instanceSyncTask.setDiskSyncListener(this);
         instanceSyncTask.execute();
 
+        listView.setOnItemClickListener(this);
         listView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE_MODAL);
         listView.setItemsCanFocus(false);
         listView.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
@@ -316,7 +317,16 @@ public class InstanceChooserList extends InstanceListActivity implements DiskSyn
     }
 
     private Cursor getCursor() {
-        String formID = getIntent().getExtras().getString(FormsProviderAPI.FormsColumns.JR_FORM_ID);
+        String formID = "";
+        Bundle bundle = getIntent().getExtras();
+
+        if (bundle != null) {
+            formID = bundle.getString(FormsProviderAPI.FormsColumns.JR_FORM_ID);
+        }
+
+        if (formID == null) {
+            formID = "";
+        }
 
         Cursor cursor;
         if (editMode) {

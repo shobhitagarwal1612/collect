@@ -48,14 +48,21 @@ public class InstancesDao {
         if (charSequence.length() == 0) {
             cursor = getSentInstancesCursor(formID, sortOrder);
         } else {
-            String selection = InstanceProviderAPI.InstanceColumns.JR_FORM_ID + " =? and "
-                    + InstanceProviderAPI.InstanceColumns.STATUS + " =? and "
+            String selection = InstanceProviderAPI.InstanceColumns.STATUS + " =? and "
                     + InstanceProviderAPI.InstanceColumns.DISPLAY_NAME + " LIKE ?";
             String[] selectionArgs = {
-                    formID,
                     InstanceProviderAPI.STATUS_SUBMITTED,
                     "%" + charSequence + "%"
             };
+
+            if (!formID.isEmpty()) {
+                selection += " and " + InstanceProviderAPI.InstanceColumns.JR_FORM_ID + " =?";
+                selectionArgs = new String[]{
+                        InstanceProviderAPI.STATUS_SUBMITTED,
+                        "%" + charSequence + "%",
+                        formID
+                };
+            }
 
             cursor = getInstancesCursor(null, selection, selectionArgs, sortOrder);
         }
@@ -64,12 +71,21 @@ public class InstancesDao {
     }
 
     public Cursor getSentInstancesCursor(String formID, String sortOrder) {
-        String selection = InstanceProviderAPI.InstanceColumns.JR_FORM_ID + " =? and "
-                + InstanceProviderAPI.InstanceColumns.STATUS + " =? ";
-        String[] selectionArgs = {
-                formID,
-                InstanceProviderAPI.STATUS_SUBMITTED
-        };
+        String[] selectionArgs;
+        String selection;
+        if (formID.isEmpty()) {
+            selection = InstanceProviderAPI.InstanceColumns.STATUS + " =? ";
+            selectionArgs = new String[]{
+                    InstanceProviderAPI.STATUS_SUBMITTED
+            };
+        } else {
+            selection = InstanceProviderAPI.InstanceColumns.JR_FORM_ID + " =? and "
+                    + InstanceProviderAPI.InstanceColumns.STATUS + " =? ";
+            selectionArgs = new String[]{
+                    formID,
+                    InstanceProviderAPI.STATUS_SUBMITTED
+            };
+        }
 
         return getInstancesCursor(null, selection, selectionArgs, sortOrder);
     }
@@ -92,9 +108,17 @@ public class InstancesDao {
     }
 
     public Cursor getUnsentInstancesCursor(String formID, String sortOrder) {
-        String selection = InstanceProviderAPI.InstanceColumns.JR_FORM_ID + " =? and "
-                + InstanceProviderAPI.InstanceColumns.STATUS + " !=? ";
-        String[] selectionArgs = {formID, InstanceProviderAPI.STATUS_SUBMITTED};
+
+        String selection;
+        String[] selectionArgs;
+        if (formID.isEmpty()) {
+            selection = InstanceProviderAPI.InstanceColumns.STATUS + " !=? ";
+            selectionArgs = new String[]{InstanceProviderAPI.STATUS_SUBMITTED};
+        } else {
+            selection = InstanceProviderAPI.InstanceColumns.JR_FORM_ID + " =? and "
+                    + InstanceProviderAPI.InstanceColumns.STATUS + " !=? ";
+            selectionArgs = new String[]{formID, InstanceProviderAPI.STATUS_SUBMITTED};
+        }
 
         return getInstancesCursor(null, selection, selectionArgs, sortOrder);
     }
@@ -104,13 +128,19 @@ public class InstancesDao {
         if (charSequence.length() == 0) {
             cursor = getUnsentInstancesCursor(formID, sortOrder);
         } else {
-            String selection = InstanceProviderAPI.InstanceColumns.JR_FORM_ID + " =? and "
-                    + InstanceProviderAPI.InstanceColumns.STATUS + " !=? and "
+            String selection = InstanceProviderAPI.InstanceColumns.STATUS + " !=? and "
                     + InstanceProviderAPI.InstanceColumns.DISPLAY_NAME + " LIKE ?";
             String[] selectionArgs = {
-                    formID,
                     InstanceProviderAPI.STATUS_SUBMITTED,
                     "%" + charSequence + "%"};
+
+            if (!formID.isEmpty()) {
+                selection += " and " + InstanceProviderAPI.InstanceColumns.JR_FORM_ID + " =?";
+                selectionArgs = new String[]{
+                        InstanceProviderAPI.STATUS_SUBMITTED,
+                        "%" + charSequence + "%",
+                        formID};
+            }
 
             cursor = getInstancesCursor(null, selection, selectionArgs, sortOrder);
         }
@@ -166,14 +196,21 @@ public class InstancesDao {
     }
 
     public Cursor getFinalizedInstancesCursor(String formID, String sortOrder) {
-        String selection = InstanceProviderAPI.InstanceColumns.JR_FORM_ID + " =? and "
-                + InstanceProviderAPI.InstanceColumns.STATUS + "=? or "
+        String selection = InstanceProviderAPI.InstanceColumns.STATUS + "=? or "
                 + InstanceProviderAPI.InstanceColumns.STATUS + "=?";
         String[] selectionArgs = {
-                formID,
                 InstanceProviderAPI.STATUS_COMPLETE,
                 InstanceProviderAPI.STATUS_SUBMISSION_FAILED
         };
+
+        if (!formID.isEmpty()) {
+            selection = InstanceProviderAPI.InstanceColumns.JR_FORM_ID + " =? and " + selection;
+            selectionArgs = new String[]{
+                    formID,
+                    InstanceProviderAPI.STATUS_COMPLETE,
+                    InstanceProviderAPI.STATUS_SUBMISSION_FAILED,
+            };
+        }
 
         return getInstancesCursor(null, selection, selectionArgs, sortOrder);
     }
@@ -183,15 +220,23 @@ public class InstancesDao {
         if (charSequence.length() == 0) {
             cursor = getFinalizedInstancesCursor(formID, sortOrder);
         } else {
-            String selection = InstanceProviderAPI.InstanceColumns.JR_FORM_ID + " =? amd ("
+            String selection = "("
                     + InstanceProviderAPI.InstanceColumns.STATUS + "=? or "
                     + InstanceProviderAPI.InstanceColumns.STATUS + "=?) and "
                     + InstanceProviderAPI.InstanceColumns.DISPLAY_NAME + " LIKE ?";
             String[] selectionArgs = {
-                    formID,
                     InstanceProviderAPI.STATUS_COMPLETE,
                     InstanceProviderAPI.STATUS_SUBMISSION_FAILED,
                     "%" + charSequence + "%"};
+
+            if (!formID.isEmpty()) {
+                selection += " and " + InstanceProviderAPI.InstanceColumns.JR_FORM_ID + " =?";
+                selectionArgs = new String[]{
+                        InstanceProviderAPI.STATUS_COMPLETE,
+                        InstanceProviderAPI.STATUS_SUBMISSION_FAILED,
+                        "%" + charSequence + "%",
+                        formID};
+            }
 
             cursor = getInstancesCursor(null, selection, selectionArgs, sortOrder);
         }
@@ -221,18 +266,26 @@ public class InstancesDao {
     }
 
     public Cursor getAllCompletedUndeletedInstancesCursor(String formID, String sortOrder) {
-        String selection = InstanceProviderAPI.InstanceColumns.JR_FORM_ID + " =? and "
-                + InstanceProviderAPI.InstanceColumns.DELETED_DATE + " IS NULL and ("
+        String selection = InstanceProviderAPI.InstanceColumns.DELETED_DATE + " IS NULL and ("
                 + InstanceProviderAPI.InstanceColumns.STATUS + "=? or "
                 + InstanceProviderAPI.InstanceColumns.STATUS + "=? or "
                 + InstanceProviderAPI.InstanceColumns.STATUS + "=?)";
 
         String[] selectionArgs = {
-                formID,
                 InstanceProviderAPI.STATUS_COMPLETE,
                 InstanceProviderAPI.STATUS_SUBMISSION_FAILED,
                 InstanceProviderAPI.STATUS_SUBMITTED
         };
+
+        if (!formID.isEmpty()) {
+            selection += " and " + InstanceProviderAPI.InstanceColumns.JR_FORM_ID + " =?";
+            selectionArgs = new String[]{
+                    InstanceProviderAPI.STATUS_COMPLETE,
+                    InstanceProviderAPI.STATUS_SUBMISSION_FAILED,
+                    InstanceProviderAPI.STATUS_SUBMITTED,
+                    formID
+            };
+        }
 
         return getInstancesCursor(null, selection, selectionArgs, sortOrder);
     }
@@ -242,19 +295,27 @@ public class InstancesDao {
         if (charSequence.length() == 0) {
             cursor = getAllCompletedUndeletedInstancesCursor(formID, sortOrder);
         } else {
-            String selection = InstanceProviderAPI.InstanceColumns.DELETED_DATE + " IS NULL and "
-                    + InstanceProviderAPI.InstanceColumns.JR_FORM_ID + " =? and ("
+            String selection = InstanceProviderAPI.InstanceColumns.DELETED_DATE + " IS NULL and ("
                     + InstanceProviderAPI.InstanceColumns.STATUS + "=? or "
                     + InstanceProviderAPI.InstanceColumns.STATUS + "=? or "
                     + InstanceProviderAPI.InstanceColumns.STATUS + "=?) and "
                     + InstanceProviderAPI.InstanceColumns.DISPLAY_NAME + " LIKE ?";
 
             String[] selectionArgs = {
-                    formID,
                     InstanceProviderAPI.STATUS_COMPLETE,
                     InstanceProviderAPI.STATUS_SUBMISSION_FAILED,
                     InstanceProviderAPI.STATUS_SUBMITTED,
                     "%" + charSequence + "%"};
+
+            if (!formID.isEmpty()) {
+                selection += " and " + InstanceProviderAPI.InstanceColumns.JR_FORM_ID + " =?";
+                selectionArgs = new String[]{
+                        InstanceProviderAPI.STATUS_COMPLETE,
+                        InstanceProviderAPI.STATUS_SUBMISSION_FAILED,
+                        InstanceProviderAPI.STATUS_SUBMITTED,
+                        "%" + charSequence + "%",
+                        formID};
+            }
 
             cursor = getInstancesCursor(null, selection, selectionArgs, sortOrder);
         }
