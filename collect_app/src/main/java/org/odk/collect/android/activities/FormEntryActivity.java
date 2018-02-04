@@ -67,6 +67,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 
+import org.javarosa.core.model.FormDef;
 import org.javarosa.core.model.FormIndex;
 import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.core.model.instance.TreeElement;
@@ -85,7 +86,6 @@ import org.odk.collect.android.exception.JavaRosaException;
 import org.odk.collect.android.external.ExternalDataManager;
 import org.odk.collect.android.fragments.dialogs.CustomDatePickerDialog;
 import org.odk.collect.android.fragments.dialogs.NumberPickerDialog;
-import org.odk.collect.android.utilities.DependencyProvider;
 import org.odk.collect.android.listeners.AdvanceToNextListener;
 import org.odk.collect.android.listeners.FormLoaderListener;
 import org.odk.collect.android.listeners.FormSavedListener;
@@ -102,14 +102,15 @@ import org.odk.collect.android.provider.InstanceProviderAPI;
 import org.odk.collect.android.provider.InstanceProviderAPI.InstanceColumns;
 import org.odk.collect.android.tasks.FormLoaderTask;
 import org.odk.collect.android.tasks.SaveFormIndexTask;
-import org.odk.collect.android.utilities.ActivityAvailability;
-import org.odk.collect.android.utilities.ImageConverter;
 import org.odk.collect.android.tasks.SavePointTask;
 import org.odk.collect.android.tasks.SaveResult;
 import org.odk.collect.android.tasks.SaveToDiskTask;
+import org.odk.collect.android.utilities.ActivityAvailability;
 import org.odk.collect.android.utilities.ApplicationConstants;
+import org.odk.collect.android.utilities.DependencyProvider;
 import org.odk.collect.android.utilities.DialogUtils;
 import org.odk.collect.android.utilities.FileUtils;
+import org.odk.collect.android.utilities.ImageConverter;
 import org.odk.collect.android.utilities.MediaUtils;
 import org.odk.collect.android.utilities.TimerLogger;
 import org.odk.collect.android.utilities.ToastUtils;
@@ -118,14 +119,21 @@ import org.odk.collect.android.widgets.QuestionWidget;
 import org.odk.collect.android.widgets.RangeWidget;
 import org.odk.collect.android.widgets.StringWidget;
 
+import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileFilter;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 
+import io.reactivex.Completable;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.CompositeDisposable;
+import io.reactivex.schedulers.Schedulers;
 import timber.log.Timber;
 
 import static android.content.DialogInterface.BUTTON_NEGATIVE;
@@ -245,6 +253,8 @@ public class FormEntryActivity extends AppCompatActivity implements AnimationLis
 
     private boolean shouldOverrideAnimations = false;
 
+    private CompositeDisposable compositeDisposable;
+
     /**
      * Called when the activity is first created.
      */
@@ -263,6 +273,7 @@ public class FormEntryActivity extends AppCompatActivity implements AnimationLis
 
         setContentView(R.layout.form_entry);
 
+        compositeDisposable = new CompositeDisposable();
         formsDao = new FormsDao();
 
         errorMessage = null;
@@ -2348,7 +2359,6 @@ public class FormEntryActivity extends AppCompatActivity implements AnimationLis
             getCurrentViewIfODKView().stopAudio();
         }
 
-
         super.onPause();
     }
 
@@ -2378,7 +2388,7 @@ public class FormEntryActivity extends AppCompatActivity implements AnimationLis
                     && formLoaderTask.getStatus() == AsyncTask.Status.FINISHED) {
                 FormController fec = formLoaderTask.getFormController();
                 if (fec != null) {
-                    loadingComplete(formLoaderTask);
+                    loadingComplete(formLoaderTask, formLoaderTask.getFormDef());
                 } else {
                     dismissDialog(PROGRESS_DIALOG);
                     FormLoaderTask t = formLoaderTask;
@@ -2462,7 +2472,7 @@ public class FormEntryActivity extends AppCompatActivity implements AnimationLis
             }
         }
         releaseOdkView();
-
+        compositeDisposable.dispose();
         super.onDestroy();
 
     }
@@ -2524,7 +2534,7 @@ public class FormEntryActivity extends AppCompatActivity implements AnimationLis
      * loading a form.
      */
     @Override
-    public void loadingComplete(FormLoaderTask task) {
+    public void loadingComplete(FormLoaderTask task, FormDef formDef) {
         dismissDialog(PROGRESS_DIALOG);
 
         final FormController formController = task.getFormController();
@@ -2654,6 +2664,51 @@ public class FormEntryActivity extends AppCompatActivity implements AnimationLis
         }
 
         refreshCurrentView();
+        if (formDef != null) {
+            final long start = System.currentTimeMillis();
+            Timber.i("Started saving the form");
+            compositeDisposable.add(getFormDefCacheCompletable(formDef).subscribe(
+                    () -> {
+                        Timber.i("Saved the form in %.3f seconds.",
+                                (System.currentTimeMillis() - start) / 1000F);
+                    }, Timber::e
+            ));
+        }
+    }
+
+    /**
+     * Returns a RxJava Completable for serializing a FormDef and saving it in cache, if it is not already cached.
+     * @param formDef - The FormDef to be cached.
+     * @return RxJava Completable.
+     */
+    private Completable getFormDefCacheCompletable(final FormDef formDef) {
+        return Completable.create(e -> {
+
+            String hash = FileUtils.getMd5Hash(new File(formPath));
+            File formDefFile = new File(Collect.CACHE_PATH + File.separator + hash + ".formdef");
+
+            if (formDefFile.exists()) {
+                Timber.i("FormDef already cached.");
+                if (!e.isDisposed()) {
+                    e.onComplete();
+                }
+                return;
+            }
+            try {
+                DataOutputStream dos = new DataOutputStream(new FileOutputStream(formDefFile));
+                formDef.writeExternal(dos);
+                dos.flush();
+                dos.close();
+            } catch (IOException exception) {
+                Timber.e(exception);
+            }
+
+            if (!e.isDisposed()) {
+                e.onComplete();
+            } else {
+                Timber.i("Subscription disposed before completing");
+            }
+        }).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread());
     }
 
     /**
