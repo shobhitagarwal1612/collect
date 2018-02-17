@@ -122,15 +122,12 @@ import org.odk.collect.android.widgets.StringWidget;
 
 import java.io.File;
 import java.io.FileFilter;
-import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 
-import io.reactivex.disposables.CompositeDisposable;
-import io.reactivex.disposables.Disposable;
 import timber.log.Timber;
 
 import static android.content.DialogInterface.BUTTON_NEGATIVE;
@@ -250,8 +247,6 @@ public class FormEntryActivity extends AppCompatActivity implements AnimationLis
     private ActivityAvailability activityAvailability = new ActivityAvailability(this);
 
     private boolean shouldOverrideAnimations = false;
-
-    private final CompositeDisposable formDefCacheCompositeDisposable = new CompositeDisposable();
 
     /**
      * Called when the activity is first created.
@@ -2469,7 +2464,6 @@ public class FormEntryActivity extends AppCompatActivity implements AnimationLis
             }
         }
         releaseOdkView();
-        formDefCacheCompositeDisposable.dispose();
         super.onDestroy();
 
     }
@@ -2668,9 +2662,7 @@ public class FormEntryActivity extends AppCompatActivity implements AnimationLis
             if (cachedFormDefFile.exists()) {
                 Timber.i("FormDef %s is already in the cache", cachedFormDefFile.toString());
             } else {
-                Disposable formDefCacheDisposable =
-                        writeCacheAsync(formDef, cachedFormDefFile).subscribe(() -> {}, Timber::e);
-                formDefCacheCompositeDisposable.add(formDefCacheDisposable);
+                writeCacheAsync(formDef, cachedFormDefFile);
             }
         }
     }

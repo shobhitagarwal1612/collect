@@ -1,5 +1,7 @@
 package org.odk.collect.android.utilities;
 
+import android.annotation.SuppressLint;
+
 import org.javarosa.core.model.FormDef;
 import org.javarosa.core.util.externalizable.ExtUtil;
 import org.odk.collect.android.application.Collect;
@@ -11,43 +13,41 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
-import io.reactivex.Completable;
-import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.Observable;
 import io.reactivex.schedulers.Schedulers;
 import timber.log.Timber;
 
-/** Methods for reading from and writing to the FormDef cache */
+/**
+ * Methods for reading from and writing to the FormDef cache
+ */
 public class FormDefCache {
     /**
-     * Returns a RxJava Completable for serializing a FormDef and saving it in cache.
+     * Serializing a FormDef and saving it in cache.
      *
      * @param formDef           - The FormDef to be cached.
      * @param cachedFormDefFile - The File object used for saving the cached FormDef
-     * @return RxJava Completable.
      */
-    public static Completable writeCacheAsync(FormDef formDef, File cachedFormDefFile) {
-        return Completable.create(emitter -> {
+    @SuppressLint("CheckResult")
+    public static void writeCacheAsync(FormDef formDef, File cachedFormDefFile) {
+        Observable.create(emitter -> {
             final long formSaveStart = System.currentTimeMillis();
             final File tempCacheFile = File.createTempFile("cache", null,
                     new File(Collect.CACHE_PATH));
             Timber.i("Started saving %s to the cache via temp file %s",
                     formDef.getTitle(), tempCacheFile.getName());
 
-            Exception caughtException = null;
+            boolean exceptionCaught = false;
             try {
                 DataOutputStream dos = new DataOutputStream(new FileOutputStream(tempCacheFile));
                 formDef.writeExternal(dos);
                 dos.close();
             } catch (IOException exception) {
-                caughtException = exception;
+                Timber.e(exception);
+                exceptionCaught = true;
             }
 
-            final boolean tempFileNeedsDeleting =
-                    emitter.isDisposed()        // It is no longer wanted
-                    || caughtException != null; // or there was an error creating it
-
             // Delete or rename the temp file
-            if (tempFileNeedsDeleting) {
+            if (exceptionCaught) {
                 Timber.i("Deleting no-longer-wanted temp cache file %s for form %s",
                         tempCacheFile.getName(), formDef.getTitle());
                 if (!tempCacheFile.delete()) {
@@ -64,21 +64,12 @@ public class FormDefCache {
                             tempCacheFile.toString(), cachedFormDefFile.toString());
                 }
             }
-
-            if (!emitter.isDisposed()) {
-                if (caughtException == null) {
-                    emitter.onComplete();
-                } else {
-                    emitter.onError(caughtException);
-                }
-            } else if (caughtException != null) { // The client is no longer there, so log the exception
-                Timber.e(caughtException);
-            }
-        }).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread());
+        }).subscribeOn(Schedulers.io()).subscribe();
     }
 
     /**
      * If a form is present in the cache, deserializes and returns it as as FormDef.
+     *
      * @param formXml a File containing the XML version of the form
      * @return a FormDef, or null if the form is not present in the cache
      */
@@ -105,6 +96,7 @@ public class FormDefCache {
 
     /**
      * Builds and returns a File object for the cached version of a form.
+     *
      * @param formXml the File containing the XML form
      * @return a File object
      */
