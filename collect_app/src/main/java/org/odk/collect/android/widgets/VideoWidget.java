@@ -21,17 +21,25 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.media.MediaMetadataRetriever;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
 import android.preference.PreferenceManager;
 import android.provider.MediaStore.Video;
 import android.support.annotation.NonNull;
+import android.util.DisplayMetrics;
+import android.view.Gravity;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
+import android.widget.FrameLayout;
 import android.widget.LinearLayout;
+import android.widget.MediaController;
+import android.widget.RelativeLayout;
 import android.widget.Toast;
+import android.widget.VideoView;
 
 import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.core.model.data.StringData;
@@ -82,10 +90,12 @@ public class VideoWidget extends QuestionWidget implements FileWidget {
     private FileUtil fileUtil;
 
     private Button captureButton;
-    private Button playButton;
     private Button chooseButton;
     private String binaryName;
-    private Uri nexus7Uri;
+    private VideoView videoView;
+    private FrameLayout videoPlayer;
+    private RelativeLayout popupView;
+    private MediaController mediaController;
 
     private boolean selfie;
 
@@ -108,25 +118,26 @@ public class VideoWidget extends QuestionWidget implements FileWidget {
         chooseButton = getSimpleButton(getContext().getString(R.string.choose_video), R.id.choose_video);
         chooseButton.setEnabled(!prompt.isReadOnly());
 
-        playButton = getSimpleButton(getContext().getString(R.string.play_video), R.id.play_video);
-
-        // retrieve answer from data model and update ui
-        binaryName = prompt.getAnswerText();
-        if (binaryName != null) {
-            playButton.setEnabled(true);
-        } else {
-            playButton.setEnabled(false);
-        }
-
         // finish complex layout
         LinearLayout answerLayout = new LinearLayout(getContext());
         answerLayout.setOrientation(LinearLayout.VERTICAL);
         answerLayout.addView(captureButton);
         answerLayout.addView(chooseButton);
-        answerLayout.addView(playButton);
         addAnswerView(answerLayout);
 
+        initLayout(context, answerLayout);
+
         hideButtonsIfNeeded();
+
+        initMediaPlayer(context);
+
+        // retrieve answer from data model and update ui
+        binaryName = prompt.getAnswerText();
+        if (binaryName != null) {
+            addMediaToLayout();
+        } else {
+            videoPlayer.setVisibility(GONE);
+        }
 
         if (selfie) {
             boolean isFrontCameraAvailable;
@@ -208,8 +219,8 @@ public class VideoWidget extends QuestionWidget implements FileWidget {
         // remove the file
         deleteFile();
 
-        // reset buttons
-        playButton.setEnabled(false);
+        videoPlayer.setVisibility(GONE);
+        videoView.stopPlayback();
     }
 
     @Override
@@ -307,7 +318,6 @@ public class VideoWidget extends QuestionWidget implements FileWidget {
     public void setOnLongClickListener(OnLongClickListener l) {
         captureButton.setOnLongClickListener(l);
         chooseButton.setOnLongClickListener(l);
-        playButton.setOnLongClickListener(l);
     }
 
     @Override
@@ -315,7 +325,136 @@ public class VideoWidget extends QuestionWidget implements FileWidget {
         super.cancelLongPress();
         captureButton.cancelLongPress();
         chooseButton.cancelLongPress();
-        playButton.cancelLongPress();
+    }
+
+    private void initLayout(final Context context, LinearLayout root) {
+        View answerLayout = inflate(context, R.layout.video_widget_layout, root);
+
+        videoPlayer = answerLayout.findViewById(R.id.videoPlayer);
+        videoView = answerLayout.findViewById(R.id.videoView);
+        popupView = answerLayout.findViewById(R.id.popupView);
+
+        answerLayout.findViewById(R.id.play)
+                .setOnClickListener(v -> play());
+        answerLayout.findViewById(R.id.open_in_external)
+                .setOnClickListener(v -> launchExternalIntent());
+
+    }
+
+    private void initMediaPlayer(Context context) {
+
+        mediaController = new MediaController(context);
+        mediaController.setAnchorView(videoView);
+        videoView.setMediaController(mediaController);
+
+        videoView.setOnTouchListener((v, event) -> {
+
+            //prevent the video from playing by touching video when the displaying popup
+            if (popupView.getVisibility() == VISIBLE) {
+                return true;
+            }
+
+            if (videoView.isPlaying()) {
+                pause();
+            } else {
+                play();
+            }
+
+            return false;
+        });
+
+        videoView.setOnCompletionListener(mp -> {
+            videoView.seekTo(1);
+            popupView.setVisibility(VISIBLE);
+        });
+    }
+
+    private void play() {
+        mediaController.hide();
+        popupView.setVisibility(GONE);
+        videoView.start();
+    }
+
+    private void pause() {
+        mediaController.show();
+        videoView.pause();
+    }
+
+    private void launchExternalIntent() {
+        Intent i = new Intent("android.intent.action.VIEW");
+        File f = new File(getInstanceFolder() + File.separator + binaryName);
+        i.setDataAndType(Uri.fromFile(f), "video/*");
+        try {
+            getContext().startActivity(i);
+        } catch (ActivityNotFoundException e) {
+            ToastUtils.showShortToast(
+                    getContext().getString(R.string.activity_not_found, "video video"));
+        }
+    }
+
+    private void addMediaToLayout() {
+        File file = new File(getFilePath());
+        if (file.isFile()) {
+
+            videoPlayer.setVisibility(VISIBLE);
+            adjustVideoPlayerParams();
+
+            videoView.setVisibility(View.VISIBLE);
+            videoView.setVideoURI(Uri.fromFile(file));
+            videoView.requestFocus();
+            videoView.seekTo(1);
+        }
+    }
+
+    /**
+     * Resize the video player according to the video frame size
+     */
+    private void adjustVideoPlayerParams() {
+        Bitmap frame = getVideoFrameInfo();
+        DisplayMetrics displayMetrics = new DisplayMetrics();
+        ((Activity) getContext()).getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
+
+        int windowWidth = displayMetrics.widthPixels;
+        int windowHeight = displayMetrics.heightPixels;
+
+        float videoAspectRatio = (float) frame.getHeight() / frame.getWidth();
+        float windowAspectRatio = (float) windowHeight / windowWidth;
+
+        int videoWidth = 0;
+        int videoHeight = 0;
+
+        if (windowAspectRatio > 1 && videoAspectRatio < 1) {
+            videoWidth = windowWidth;
+        } else if (windowAspectRatio < 1 && videoAspectRatio > 1) {
+            videoHeight = windowHeight;
+        } else if (videoAspectRatio > windowAspectRatio) {
+            videoHeight = windowHeight;
+        } else if (videoAspectRatio < windowAspectRatio) {
+            videoWidth = windowWidth;
+        }
+
+        if (videoHeight == 0) {
+            videoHeight = (int) (videoWidth * videoAspectRatio);
+        } else {
+            videoWidth = (int) (videoHeight / videoAspectRatio);
+        }
+
+        FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(videoWidth, videoHeight);
+        layoutParams.gravity = Gravity.CENTER;
+
+        videoView.setLayoutParams(layoutParams);
+        popupView.setLayoutParams(layoutParams);
+    }
+
+    private Bitmap getVideoFrameInfo() {
+        MediaMetadataRetriever retriever = new MediaMetadataRetriever();
+        retriever.setDataSource(getFilePath());
+        return retriever.getFrameAtTime();
+    }
+
+    @NonNull
+    private String getFilePath() {
+        return getInstanceFolder() + File.separator + binaryName;
     }
 
     @Override
@@ -326,9 +465,6 @@ public class VideoWidget extends QuestionWidget implements FileWidget {
                 break;
             case R.id.choose_video:
                 chooseVideo();
-                break;
-            case R.id.play_video:
-                playVideoFile();
                 break;
         }
     }
@@ -354,7 +490,7 @@ public class VideoWidget extends QuestionWidget implements FileWidget {
             // to allow the current location to catch issues with the intermediate file
             Timber.i("The build of this device is %s", MODEL);
             if (NEXUS7.equals(MODEL) && Build.VERSION.SDK_INT == 18) {
-                nexus7Uri = getOutputMediaFileUri(MEDIA_TYPE_VIDEO);
+                Uri nexus7Uri = getOutputMediaFileUri(MEDIA_TYPE_VIDEO);
                 i.putExtra(android.provider.MediaStore.EXTRA_OUTPUT, nexus7Uri);
             } else {
                 i.putExtra(android.provider.MediaStore.EXTRA_OUTPUT,
