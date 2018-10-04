@@ -4,6 +4,7 @@ import android.content.Context;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.RatingBar;
+
 import org.javarosa.core.model.RangeQuestion;
 import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.core.model.data.StringData;
@@ -33,7 +34,7 @@ public class RatingWidget extends QuestionWidget {
 
         ratingBar.setNumStars(maxStars);
         ratingBar.setId(ViewIds.generateViewId());
-        ratingBar.setStepSize((float) 1.0);
+        ratingBar.setStepSize(0.5f);
 
         String s = prompt.getAnswerText();
         if (s != null) {
@@ -43,11 +44,9 @@ public class RatingWidget extends QuestionWidget {
             ratingBar.setRating((float) 0);
         }
 
-        ratingBar.setOnRatingBarChangeListener(new RatingBar.OnRatingBarChangeListener() {
-            @Override
-            public void onRatingChanged(RatingBar ratingBar, float v, boolean b) {
-               answer = (int) v;
-            }
+        ratingBar.setOnRatingBarChangeListener((ratingBar, v, b) -> {
+            answer = (int) Math.ceil(v);
+            ratingBar.setRating(answer);
         });
 
         linearLayout.addView(ratingBar);
