@@ -85,7 +85,6 @@ public class GoogleDriveActivity extends FormListActivity implements View.OnClic
     private final Stack<String> folderIdStack = new Stack<>();
     private String alertMsg;
     private boolean alertShowing;
-    private String rootId;
     private boolean myDrive;
     private FileArrayAdapter adapter;
     private RetrieveDriveFileContentsAsyncTask retrieveDriveFileContentsAsyncTask;
@@ -590,6 +589,7 @@ public class GoogleDriveActivity extends FormListActivity implements View.OnClic
             AsyncTask<String, HashMap<String, Object>, HashMap<String, Object>> {
         private TaskListener listener;
         private DriveHelper driveHelper;
+        private String rootId;
 
         public RetrieveDriveFileContentsAsyncTask(DriveHelper driveHelper) {
             this.driveHelper = driveHelper;
