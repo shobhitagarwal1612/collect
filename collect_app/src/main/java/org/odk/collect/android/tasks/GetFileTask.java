@@ -19,7 +19,7 @@ import java.util.List;
 
 import timber.log.Timber;
 
-public class GetFileTask extends AsyncTask<ArrayList<DriveListItem>, Boolean, HashMap<String, Object>> {
+public class GetFileTask extends AsyncTask<ArrayList<DriveListItem>, Boolean, HashMap<String, String>> {
 
     private GoogleDriveFormDownloadListener listener;
     private DriveHelper driveHelper;
@@ -34,8 +34,8 @@ public class GetFileTask extends AsyncTask<ArrayList<DriveListItem>, Boolean, Ha
 
     @SafeVarargs
     @Override
-    protected final HashMap<String, Object> doInBackground(ArrayList<DriveListItem>... params) {
-        HashMap<String, Object> results = new HashMap<>();
+    protected final HashMap<String, String> doInBackground(ArrayList<DriveListItem>... params) {
+        HashMap<String, String> results = new HashMap<>();
 
         ArrayList<DriveListItem> fileItems = params[0];
 
@@ -83,7 +83,7 @@ public class GetFileTask extends AsyncTask<ArrayList<DriveListItem>, Boolean, Ha
     }
 
     @Override
-    protected void onPostExecute(HashMap<String, Object> results) {
+    protected void onPostExecute(HashMap<String, String> results) {
         listener.formDownloadComplete(results);
     }
 }

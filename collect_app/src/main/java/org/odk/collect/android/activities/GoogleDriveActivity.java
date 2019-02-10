@@ -464,7 +464,7 @@ public class GoogleDriveActivity extends FormListActivity implements View.OnClic
     }
 
     @Override
-    public void formDownloadComplete(HashMap<String, Object> results) {
+    public void formDownloadComplete(HashMap<String, String> results) {
         try {
             dismissDialog(PROGRESS_DIALOG);
         } catch (Exception e) {

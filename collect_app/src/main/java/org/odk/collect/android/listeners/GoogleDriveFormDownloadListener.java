@@ -16,8 +16,6 @@ package org.odk.collect.android.listeners;
 
 import java.util.HashMap;
 
-/**
- */
 public interface GoogleDriveFormDownloadListener {
-    void formDownloadComplete(HashMap<String, Object> results);
+    void formDownloadComplete(HashMap<String, String> results);
 }
