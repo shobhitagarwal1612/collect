@@ -504,7 +504,7 @@ public class GoogleDriveActivity extends FormListActivity implements View.OnClic
     public void listFiles(String dir, String query) {
         setProgressBarIndeterminateVisibility(true);
         adapter = null;
-        retrieveDriveFileContentsAsyncTask = new RetrieveDriveFileContentsAsyncTask(driveHelper, folderIdStack, myDrive);
+        retrieveDriveFileContentsAsyncTask = new RetrieveDriveFileContentsAsyncTask(driveHelper, folderIdStack, myDrive, driveList);
         retrieveDriveFileContentsAsyncTask.setTaskListener(this);
         if (query != null) {
             retrieveDriveFileContentsAsyncTask.execute(dir, query);
@@ -585,18 +585,19 @@ public class GoogleDriveActivity extends FormListActivity implements View.OnClic
         }
     }
 
-    private class RetrieveDriveFileContentsAsyncTask extends
-            AsyncTask<String, HashMap<String, Object>, HashMap<String, Object>> {
+    private class RetrieveDriveFileContentsAsyncTask extends AsyncTask<String, HashMap<String, Object>, HashMap<String, Object>> {
         private TaskListener listener;
         private DriveHelper driveHelper;
         private Stack<String> folderIdStack;
+        private List<DriveListItem> driveList;
         private boolean myDrive;
         private String rootId;
 
-        public RetrieveDriveFileContentsAsyncTask(DriveHelper driveHelper, Stack<String> folderIdStack, boolean myDrive) {
+        public RetrieveDriveFileContentsAsyncTask(DriveHelper driveHelper, Stack<String> folderIdStack, boolean myDrive, List<DriveListItem> driveList) {
             this.driveHelper = driveHelper;
             this.folderIdStack = folderIdStack;
             this.myDrive = myDrive;
+            this.driveList = driveList;
         }
 
         void setTaskListener(TaskListener tl) {
