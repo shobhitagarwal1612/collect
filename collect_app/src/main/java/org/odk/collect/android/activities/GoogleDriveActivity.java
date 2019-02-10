@@ -51,6 +51,7 @@ import org.odk.collect.android.utilities.gdrive.DriveHelper;
 import org.odk.collect.android.utilities.gdrive.GoogleAccountsManager;
 
 import java.io.IOException;
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -504,7 +505,7 @@ public class GoogleDriveActivity extends FormListActivity implements View.OnClic
     public void listFiles(String dir, String query) {
         setProgressBarIndeterminateVisibility(true);
         adapter = null;
-        retrieveDriveFileContentsAsyncTask = new RetrieveDriveFileContentsAsyncTask(driveHelper, folderIdStack, myDrive, driveList);
+        retrieveDriveFileContentsAsyncTask = new RetrieveDriveFileContentsAsyncTask(driveHelper, folderIdStack, myDrive, driveList, this);
         retrieveDriveFileContentsAsyncTask.setTaskListener(this);
         if (query != null) {
             retrieveDriveFileContentsAsyncTask.execute(dir, query);
@@ -585,19 +586,25 @@ public class GoogleDriveActivity extends FormListActivity implements View.OnClic
         }
     }
 
-    private class RetrieveDriveFileContentsAsyncTask extends AsyncTask<String, HashMap<String, Object>, HashMap<String, Object>> {
+    private void displayAuthException() {
+        runOnUiThread(() -> createAlertDialog(getString(R.string.google_auth_io_exception_msg)));
+    }
+
+    private static class RetrieveDriveFileContentsAsyncTask extends AsyncTask<String, HashMap<String, Object>, HashMap<String, Object>> {
         private TaskListener listener;
         private DriveHelper driveHelper;
         private Stack<String> folderIdStack;
         private List<DriveListItem> driveList;
         private boolean myDrive;
         private String rootId;
+        private WeakReference<GoogleDriveActivity> activityWeakReference;
 
-        public RetrieveDriveFileContentsAsyncTask(DriveHelper driveHelper, Stack<String> folderIdStack, boolean myDrive, List<DriveListItem> driveList) {
+        public RetrieveDriveFileContentsAsyncTask(DriveHelper driveHelper, Stack<String> folderIdStack, boolean myDrive, List<DriveListItem> driveList, GoogleDriveActivity activity) {
             this.driveHelper = driveHelper;
             this.folderIdStack = folderIdStack;
             this.myDrive = myDrive;
             this.driveList = driveList;
+            activityWeakReference = new WeakReference<>(activity);
         }
 
         void setTaskListener(TaskListener tl) {
@@ -606,14 +613,20 @@ public class GoogleDriveActivity extends FormListActivity implements View.OnClic
 
         @Override
         protected HashMap<String, Object> doInBackground(String... params) {
+            GoogleDriveActivity googleDriveActivity = activityWeakReference.get();
+
+            if (googleDriveActivity == null) {
+                return null;
+            }
+
             if (rootId == null) {
                 try {
                     rootId = driveHelper.getRootFolderId();
                 } catch (UserRecoverableAuthIOException e) {
-                    GoogleDriveActivity.this.startActivityForResult(e.getIntent(), AUTHORIZATION_REQUEST_CODE);
+                    googleDriveActivity.startActivityForResult(e.getIntent(), AUTHORIZATION_REQUEST_CODE);
                 } catch (IOException e) {
                     Timber.e(e);
-                    runOnUiThread(() -> createAlertDialog(getString(R.string.google_auth_io_exception_msg)));
+                    googleDriveActivity.displayAuthException();
                 }
                 if (rootId == null) {
                     Timber.e("Unable to fetch drive contents");
@@ -727,7 +740,10 @@ public class GoogleDriveActivity extends FormListActivity implements View.OnClic
             Collections.sort(forms);
             driveList.addAll(dirs);
             driveList.addAll(forms);
-            updateAdapter();
+
+            if (activityWeakReference.get() != null) {
+                activityWeakReference.get().updateAdapter();
+            }
         }
     }
 }
