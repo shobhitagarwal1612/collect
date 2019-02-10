@@ -19,17 +19,17 @@ import java.util.List;
 
 import timber.log.Timber;
 
-public class GetFileTask extends AsyncTask<ArrayList<DriveListItem>, Boolean, HashMap<String, String>> {
+public class GoogleDriveDownloadTask extends AsyncTask<ArrayList<DriveListItem>, Boolean, HashMap<String, String>> {
 
     private GoogleDriveFormDownloadListener listener;
     private DriveHelper driveHelper;
 
-    public GetFileTask(DriveHelper driveHelper) {
+    public GoogleDriveDownloadTask(DriveHelper driveHelper) {
         this.driveHelper = driveHelper;
     }
 
-    public void setGoogleDriveFormDownloadListener(GoogleDriveFormDownloadListener gl) {
-        listener = gl;
+    public void setGoogleDriveFormDownloadListener(GoogleDriveFormDownloadListener listener) {
+        this.listener = listener;
     }
 
     @SafeVarargs
