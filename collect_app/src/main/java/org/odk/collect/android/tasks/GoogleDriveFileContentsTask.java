@@ -24,7 +24,7 @@ import timber.log.Timber;
 import static org.odk.collect.android.activities.GoogleDriveActivity.PARENT_ID_KEY;
 import static org.odk.collect.android.activities.GoogleDriveActivity.ROOT_KEY;
 
-public class GoogleDriveFileContentsTask extends AsyncTask<String, HashMap<String, Object>, HashMap<String, Object>> {
+public class GoogleDriveFileContentsTask extends AsyncTask<String, HashMap<String, Object>, HashMap<String, String>> {
 
     public static final int AUTHORIZATION_REQUEST_CODE = 4322;
     private static final String FILE_LIST_KEY = "fileList";
@@ -46,12 +46,12 @@ public class GoogleDriveFileContentsTask extends AsyncTask<String, HashMap<Strin
         activityWeakReference = new WeakReference<>(activity);
     }
 
-    public void setTaskListener(TaskListener tl) {
-        listener = tl;
+    public void setTaskListener(TaskListener listener) {
+        this.listener = listener;
     }
 
     @Override
-    protected HashMap<String, Object> doInBackground(String... params) {
+    protected HashMap<String, String> doInBackground(String... params) {
         GoogleDriveActivity googleDriveActivity = activityWeakReference.get();
 
         if (googleDriveActivity == null) {
@@ -106,7 +106,7 @@ public class GoogleDriveFileContentsTask extends AsyncTask<String, HashMap<Strin
             Timber.e(e);
         }
 
-        HashMap<String, Object> results = new HashMap<>();
+        HashMap<String, String> results = new HashMap<>();
         results.put(PARENT_ID_KEY, parentId);
         results.put(CURRENT_ID_KEY, currentDir);
         if (request != null) {
@@ -131,7 +131,7 @@ public class GoogleDriveFileContentsTask extends AsyncTask<String, HashMap<Strin
     }
 
     @Override
-    protected void onPostExecute(HashMap<String, Object> results) {
+    protected void onPostExecute(HashMap<String, String> results) {
         super.onPostExecute(results);
         if (results == null) {
             // was an auth request

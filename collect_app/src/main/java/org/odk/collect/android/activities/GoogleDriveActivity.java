@@ -411,7 +411,7 @@ public class GoogleDriveActivity extends FormListActivity implements View.OnClic
     }
 
     @Override
-    public void taskComplete(HashMap<String, Object> results) {
+    public void taskComplete(HashMap<String, String> results) {
         rootButton.setEnabled(true);
         downloadButton.setEnabled(!toDownload.isEmpty());
         setProgressBarIndeterminateVisibility(false);
