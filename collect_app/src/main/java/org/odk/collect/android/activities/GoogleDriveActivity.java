@@ -434,7 +434,7 @@ public class GoogleDriveActivity extends FormListActivity implements View.OnClic
             rootButton.setText(getString(R.string.go_drive));
         }
 
-        if (folderIdStack.empty()) {
+        if (folderIdStack.isEmpty()) {
             backButton.setEnabled(false);
         } else {
             backButton.setEnabled(true);
@@ -504,7 +504,7 @@ public class GoogleDriveActivity extends FormListActivity implements View.OnClic
     public void listFiles(String dir, String query) {
         setProgressBarIndeterminateVisibility(true);
         adapter = null;
-        retrieveDriveFileContentsAsyncTask = new RetrieveDriveFileContentsAsyncTask(driveHelper);
+        retrieveDriveFileContentsAsyncTask = new RetrieveDriveFileContentsAsyncTask(driveHelper, folderIdStack);
         retrieveDriveFileContentsAsyncTask.setTaskListener(this);
         if (query != null) {
             retrieveDriveFileContentsAsyncTask.execute(dir, query);
@@ -532,7 +532,7 @@ public class GoogleDriveActivity extends FormListActivity implements View.OnClic
                 toDownload.clear();
                 driveList.clear();
                 if (isDeviceOnline()) {
-                    if (folderIdStack.empty()) {
+                    if (folderIdStack.isEmpty()) {
                         parentId = ROOT_KEY;
                     } else {
                         parentId = folderIdStack.pop();
@@ -589,10 +589,12 @@ public class GoogleDriveActivity extends FormListActivity implements View.OnClic
             AsyncTask<String, HashMap<String, Object>, HashMap<String, Object>> {
         private TaskListener listener;
         private DriveHelper driveHelper;
+        private Stack<String> folderIdStack;
         private String rootId;
 
-        public RetrieveDriveFileContentsAsyncTask(DriveHelper driveHelper) {
+        public RetrieveDriveFileContentsAsyncTask(DriveHelper driveHelper, Stack<String> folderIdStack) {
             this.driveHelper = driveHelper;
+            this.folderIdStack = folderIdStack;
         }
 
         void setTaskListener(TaskListener tl) {
@@ -617,7 +619,7 @@ public class GoogleDriveActivity extends FormListActivity implements View.OnClic
             }
 
             String parentId;
-            if (folderIdStack.empty()) {
+            if (folderIdStack.isEmpty()) {
                 parentId = rootId;
             } else {
                 parentId = folderIdStack.peek();
@@ -634,7 +636,7 @@ public class GoogleDriveActivity extends FormListActivity implements View.OnClic
             String currentDir = params[0];
 
             if (!myDrive) {
-                if (currentDir.equals(ROOT_KEY) || folderIdStack.empty()) {
+                if (currentDir.equals(ROOT_KEY) || folderIdStack.isEmpty()) {
                     query = "sharedWithMe=true";
                 }
             }
