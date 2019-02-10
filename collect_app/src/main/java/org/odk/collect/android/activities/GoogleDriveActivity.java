@@ -725,7 +725,7 @@ public class GoogleDriveActivity extends FormListActivity implements View.OnClic
         }
     }
 
-    private class GetFileTask extends
+    private static class GetFileTask extends
             AsyncTask<ArrayList<DriveListItem>, Boolean, HashMap<String, Object>> {
 
         private GoogleDriveFormDownloadListener listener;
@@ -759,7 +759,7 @@ public class GoogleDriveActivity extends FormListActivity implements View.OnClic
                     try {
                         folderId = driveHelper.getIDOfFolderWithName(mediaDirName, fileItem.getParentId(), false);
                     } catch (MultipleFoldersFoundException exception) {
-                        results.put(fileItem.getName(), getString(R.string.multiple_media_folders_detected_notification));
+                        results.put(fileItem.getName(), Collect.getInstance().getString(R.string.multiple_media_folders_detected_notification));
                         return results;
                     }
 
