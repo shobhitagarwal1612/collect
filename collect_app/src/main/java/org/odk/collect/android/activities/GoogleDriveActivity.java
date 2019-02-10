@@ -123,8 +123,7 @@ public class GoogleDriveActivity extends FormListActivity implements View.OnClic
             alertMsg = savedInstanceState.getString(ALERT_MSG_KEY);
             alertShowing = savedInstanceState.getBoolean(ALERT_SHOWING_KEY);
 
-            ArrayList<DriveListItem> dl = savedInstanceState
-                    .getParcelableArrayList(DRIVE_ITEMS_KEY);
+            ArrayList<DriveListItem> dl = savedInstanceState.getParcelableArrayList(DRIVE_ITEMS_KEY);
             filteredList.addAll(dl);
         } else {
             // new
@@ -230,17 +229,15 @@ public class GoogleDriveActivity extends FormListActivity implements View.OnClic
      * @return true if the device has a network connection, false otherwise.
      */
     private boolean isDeviceOnline() {
-        ConnectivityManager connMgr =
-                (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
+        ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
         return networkInfo != null && networkInfo.isConnected();
     }
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         outState.putBoolean(MY_DRIVE_KEY, myDrive);
-        ArrayList<DriveListItem> dl = new ArrayList<>();
-        dl.addAll(filteredList);
+        ArrayList<DriveListItem> dl = new ArrayList<>(filteredList);
         outState.putParcelableArrayList(DRIVE_ITEMS_KEY, dl);
         outState.putStringArray(PATH_KEY, currentPath.toArray(new String[currentPath.size()]));
         outState.putString(PARENT_KEY, parentId);
@@ -326,15 +323,11 @@ public class GoogleDriveActivity extends FormListActivity implements View.OnClic
         switch (id) {
             case PROGRESS_DIALOG:
                 ProgressDialog progressDialog = new ProgressDialog(this);
-                DialogInterface.OnClickListener loadingButtonListener =
-                        new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                dialog.dismiss();
-                                googleDriveDownloadTask.cancel(true);
-                                googleDriveDownloadTask.setGoogleDriveFormDownloadListener(null);
-                            }
-                        };
+                DialogInterface.OnClickListener loadingButtonListener = (dialog, which) -> {
+                    dialog.dismiss();
+                    googleDriveDownloadTask.cancel(true);
+                    googleDriveDownloadTask.setGoogleDriveFormDownloadListener(null);
+                };
                 progressDialog.setTitle(getString(R.string.downloading_data));
                 progressDialog.setMessage(alertMsg);
                 progressDialog.setIndeterminate(true);
@@ -358,19 +351,11 @@ public class GoogleDriveActivity extends FormListActivity implements View.OnClic
         AlertDialog alertDialog = new AlertDialog.Builder(this).create();
         alertDialog.setTitle(getString(R.string.download_forms_result));
         alertDialog.setMessage(message);
-        DialogInterface.OnClickListener quitListener = new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int i) {
-                switch (i) {
-                    case DialogInterface.BUTTON1: // ok
-                        alertShowing = false;
-                        finish();
-                        break;
-                }
-            }
-        };
         alertDialog.setCancelable(false);
-        alertDialog.setButton(getString(R.string.ok), quitListener);
+        alertDialog.setButton(getString(R.string.ok), (dialog, which) -> {
+            alertShowing = false;
+            finish();
+        });
         alertDialog.setIcon(android.R.drawable.ic_dialog_info);
         alertShowing = true;
         alertMsg = message;
@@ -403,7 +388,7 @@ public class GoogleDriveActivity extends FormListActivity implements View.OnClic
     }
 
     private Stack<String> buildPath(String[] paths) {
-        Stack<String> pathStack = new Stack<String>();
+        Stack<String> pathStack = new Stack<>();
         for (String path : paths) {
             pathStack.push(path);
         }
@@ -422,7 +407,7 @@ public class GoogleDriveActivity extends FormListActivity implements View.OnClic
             return;
         }
 
-        String parentId = (String) results.get(PARENT_ID_KEY);
+        parentId = results.get(PARENT_ID_KEY);
 
         if (myDrive) {
             rootButton.setText(getString(R.string.go_shared));
@@ -435,7 +420,6 @@ public class GoogleDriveActivity extends FormListActivity implements View.OnClic
         } else {
             backButton.setEnabled(true);
         }
-        this.parentId = parentId;
 
         if (currentPath.empty()) {
             if (myDrive) {
