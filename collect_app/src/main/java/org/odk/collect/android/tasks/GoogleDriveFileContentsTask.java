@@ -24,7 +24,7 @@ import timber.log.Timber;
 import static org.odk.collect.android.activities.GoogleDriveActivity.PARENT_ID_KEY;
 import static org.odk.collect.android.activities.GoogleDriveActivity.ROOT_KEY;
 
-public class RetrieveDriveFileContentsAsyncTask extends AsyncTask<String, HashMap<String, Object>, HashMap<String, Object>> {
+public class GoogleDriveFileContentsTask extends AsyncTask<String, HashMap<String, Object>, HashMap<String, Object>> {
 
     public static final int AUTHORIZATION_REQUEST_CODE = 4322;
     private static final String FILE_LIST_KEY = "fileList";
@@ -38,7 +38,7 @@ public class RetrieveDriveFileContentsAsyncTask extends AsyncTask<String, HashMa
     private String rootId;
     private WeakReference<GoogleDriveActivity> activityWeakReference;
 
-    public RetrieveDriveFileContentsAsyncTask(DriveHelper driveHelper, Stack<String> folderIdStack, boolean myDrive, List<DriveListItem> driveList, GoogleDriveActivity activity) {
+    public GoogleDriveFileContentsTask(DriveHelper driveHelper, Stack<String> folderIdStack, boolean myDrive, List<DriveListItem> driveList, GoogleDriveActivity activity) {
         this.driveHelper = driveHelper;
         this.folderIdStack = folderIdStack;
         this.myDrive = myDrive;

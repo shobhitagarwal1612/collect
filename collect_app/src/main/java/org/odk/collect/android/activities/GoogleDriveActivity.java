@@ -43,7 +43,7 @@ import org.odk.collect.android.listeners.GoogleDriveFormDownloadListener;
 import org.odk.collect.android.listeners.TaskListener;
 import org.odk.collect.android.logic.DriveListItem;
 import org.odk.collect.android.tasks.GoogleDriveDownloadTask;
-import org.odk.collect.android.tasks.RetrieveDriveFileContentsAsyncTask;
+import org.odk.collect.android.tasks.GoogleDriveFileContentsTask;
 import org.odk.collect.android.utilities.DialogUtils;
 import org.odk.collect.android.utilities.gdrive.DriveHelper;
 import org.odk.collect.android.utilities.gdrive.GoogleAccountsManager;
@@ -57,7 +57,7 @@ import java.util.Stack;
 
 import timber.log.Timber;
 
-import static org.odk.collect.android.tasks.RetrieveDriveFileContentsAsyncTask.AUTHORIZATION_REQUEST_CODE;
+import static org.odk.collect.android.tasks.GoogleDriveFileContentsTask.AUTHORIZATION_REQUEST_CODE;
 
 public class GoogleDriveActivity extends FormListActivity implements View.OnClickListener,
         TaskListener, GoogleDriveFormDownloadListener, GoogleAccountsManager.GoogleAccountSelectionListener,
@@ -83,7 +83,7 @@ public class GoogleDriveActivity extends FormListActivity implements View.OnClic
     private boolean alertShowing;
     private boolean myDrive;
     private FileArrayAdapter adapter;
-    private RetrieveDriveFileContentsAsyncTask retrieveDriveFileContentsAsyncTask;
+    private GoogleDriveFileContentsTask googleDriveFileContentsTask;
     private GoogleDriveDownloadTask googleDriveDownloadTask;
     private String parentId;
     private ArrayList<DriveListItem> toDownload;
@@ -136,9 +136,9 @@ public class GoogleDriveActivity extends FormListActivity implements View.OnClic
         }
 
         // restore any task state
-        if (getLastCustomNonConfigurationInstance() instanceof RetrieveDriveFileContentsAsyncTask) {
-            retrieveDriveFileContentsAsyncTask =
-                    (RetrieveDriveFileContentsAsyncTask) getLastNonConfigurationInstance();
+        if (getLastCustomNonConfigurationInstance() instanceof GoogleDriveFileContentsTask) {
+            googleDriveFileContentsTask =
+                    (GoogleDriveFileContentsTask) getLastNonConfigurationInstance();
             setProgressBarIndeterminateVisibility(true);
         } else {
             googleDriveDownloadTask = (GoogleDriveDownloadTask) getLastNonConfigurationInstance();
@@ -395,9 +395,9 @@ public class GoogleDriveActivity extends FormListActivity implements View.OnClic
 
     @Override
     public Object onRetainCustomNonConfigurationInstance() {
-        if (retrieveDriveFileContentsAsyncTask != null
-                && retrieveDriveFileContentsAsyncTask.getStatus() == AsyncTask.Status.RUNNING) {
-            return retrieveDriveFileContentsAsyncTask;
+        if (googleDriveFileContentsTask != null
+                && googleDriveFileContentsTask.getStatus() == AsyncTask.Status.RUNNING) {
+            return googleDriveFileContentsTask;
         }
         return googleDriveDownloadTask;
     }
@@ -450,8 +450,8 @@ public class GoogleDriveActivity extends FormListActivity implements View.OnClic
     @Override
     protected void onResume() {
         super.onResume();
-        if (retrieveDriveFileContentsAsyncTask != null) {
-            retrieveDriveFileContentsAsyncTask.setTaskListener(this);
+        if (googleDriveFileContentsTask != null) {
+            googleDriveFileContentsTask.setTaskListener(this);
         }
         if (googleDriveDownloadTask != null) {
             googleDriveDownloadTask.setGoogleDriveFormDownloadListener(this);
@@ -481,11 +481,11 @@ public class GoogleDriveActivity extends FormListActivity implements View.OnClic
 
     @Override
     protected void onDestroy() {
-        if (retrieveDriveFileContentsAsyncTask != null) {
-            if (!retrieveDriveFileContentsAsyncTask.isCancelled()) {
-                retrieveDriveFileContentsAsyncTask.cancel(true);
+        if (googleDriveFileContentsTask != null) {
+            if (!googleDriveFileContentsTask.isCancelled()) {
+                googleDriveFileContentsTask.cancel(true);
             }
-            retrieveDriveFileContentsAsyncTask.setTaskListener(null);
+            googleDriveFileContentsTask.setTaskListener(null);
         }
         if (googleDriveDownloadTask != null) {
             if (!googleDriveDownloadTask.isCancelled()) {
@@ -500,12 +500,12 @@ public class GoogleDriveActivity extends FormListActivity implements View.OnClic
     public void listFiles(String dir, String query) {
         setProgressBarIndeterminateVisibility(true);
         adapter = null;
-        retrieveDriveFileContentsAsyncTask = new RetrieveDriveFileContentsAsyncTask(driveHelper, folderIdStack, myDrive, driveList, this);
-        retrieveDriveFileContentsAsyncTask.setTaskListener(this);
+        googleDriveFileContentsTask = new GoogleDriveFileContentsTask(driveHelper, folderIdStack, myDrive, driveList, this);
+        googleDriveFileContentsTask.setTaskListener(this);
         if (query != null) {
-            retrieveDriveFileContentsAsyncTask.execute(dir, query);
+            googleDriveFileContentsTask.execute(dir, query);
         } else {
-            retrieveDriveFileContentsAsyncTask.execute(dir);
+            googleDriveFileContentsTask.execute(dir);
 
         }
     }
