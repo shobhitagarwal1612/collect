@@ -271,7 +271,7 @@ public class GoogleDriveActivity extends FormListActivity implements View.OnClic
         alertMsg = getString(R.string.drive_get_file, messageBuilder.toString());
         showDialog(PROGRESS_DIALOG);
 
-        getFileTask = new GetFileTask();
+        getFileTask = new GetFileTask(driveHelper);
         getFileTask.setGoogleDriveFormDownloadListener(this);
         getFileTask.execute(toDownload);
     }
@@ -729,6 +729,11 @@ public class GoogleDriveActivity extends FormListActivity implements View.OnClic
             AsyncTask<ArrayList<DriveListItem>, Boolean, HashMap<String, Object>> {
 
         private GoogleDriveFormDownloadListener listener;
+        private DriveHelper driveHelper;
+
+        public GetFileTask(DriveHelper driveHelper) {
+            this.driveHelper = driveHelper;
+        }
 
         void setGoogleDriveFormDownloadListener(GoogleDriveFormDownloadListener gl) {
             listener = gl;
