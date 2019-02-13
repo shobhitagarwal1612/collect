@@ -468,7 +468,7 @@ public class ServerPreferencesFragment extends BasePreferenceFragment
             case REQUEST_ACCOUNT_PICKER:
                 if (resultCode == RESULT_OK && data != null && data.getExtras() != null) {
                     String accountName = data.getStringExtra(AccountManager.KEY_ACCOUNT_NAME);
-                    accountsManager.setSelectedAccountName(accountName);
+                    accountsManager.selectAccount(accountName);
                     selectedGoogleAccountPreference.setSummary(accountName);
                 }
                 allowClickSelectedGoogleAccountPreference = true;
