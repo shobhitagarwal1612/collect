@@ -4,6 +4,8 @@ import android.app.Application;
 
 import org.odk.collect.android.activities.FormDownloadList;
 import org.odk.collect.android.activities.FormEntryActivity;
+import org.odk.collect.android.activities.GoogleDriveActivity;
+import org.odk.collect.android.activities.GoogleSheetsUploaderActivity;
 import org.odk.collect.android.activities.InstanceUploaderList;
 import org.odk.collect.android.adapters.InstanceUploaderAdapter;
 import org.odk.collect.android.application.Collect;
@@ -14,9 +16,9 @@ import org.odk.collect.android.injection.config.scopes.PerApplication;
 import org.odk.collect.android.logic.PropertyManager;
 import org.odk.collect.android.preferences.ServerPreferencesFragment;
 import org.odk.collect.android.tasks.InstanceServerUploaderTask;
-import org.odk.collect.android.tasks.sms.SmsSentBroadcastReceiver;
 import org.odk.collect.android.tasks.sms.SmsNotificationReceiver;
 import org.odk.collect.android.tasks.sms.SmsSender;
+import org.odk.collect.android.tasks.sms.SmsSentBroadcastReceiver;
 import org.odk.collect.android.tasks.sms.SmsService;
 import org.odk.collect.android.utilities.AuthDialogUtility;
 import org.odk.collect.android.utilities.DownloadFormListUtils;
@@ -40,14 +42,7 @@ import dagger.android.support.AndroidSupportInjectionModule;
 })
 public interface AppComponent {
 
-    @Component.Builder
-    interface Builder {
-
-        @BindsInstance
-        Builder application(Application application);
-
-        AppComponent build();
-    }
+    void inject(GoogleDriveActivity googleDriveActivity);
 
     void inject(Collect collect);
 
@@ -80,6 +75,17 @@ public interface AppComponent {
     void inject(DownloadFormListUtils downloadFormListUtils);
 
     void inject(AuthDialogUtility authDialogUtility);
-  
+
     void inject(FormDownloadList formDownloadList);
+
+    void inject(GoogleSheetsUploaderActivity googleSheetsUploaderActivity);
+
+    @Component.Builder
+    interface Builder {
+
+        @BindsInstance
+        Builder application(Application application);
+
+        AppComponent build();
+    }
 }

@@ -84,11 +84,13 @@ public class ServerPreferencesFragment extends BasePreferenceFragment implements
     private ListPopupWindow listPopupWindow;
     private List<String> urlList;
     private Preference selectedGoogleAccountPreference;
-    private GoogleAccountsManager accountsManager;
     private boolean allowClickSelectedGoogleAccountPreference = true;
 
     @Inject
     CollectServerClient collectServerClient;
+
+    @Inject
+    GoogleAccountsManager accountsManager;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -244,7 +246,6 @@ public class ServerPreferencesFragment extends BasePreferenceFragment implements
     }
 
     public void initAccountPreferences() {
-        accountsManager = new GoogleAccountsManager(this);
         accountsManager.setListener(this);
         accountsManager.disableAutoChooseAccount();
 
