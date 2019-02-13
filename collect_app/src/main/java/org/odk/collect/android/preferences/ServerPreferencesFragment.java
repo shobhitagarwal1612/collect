@@ -74,8 +74,8 @@ import static org.odk.collect.android.preferences.GeneralKeys.KEY_SUBMISSION_URL
 import static org.odk.collect.android.utilities.DialogUtils.showDialog;
 import static org.odk.collect.android.utilities.gdrive.GoogleAccountsManager.REQUEST_ACCOUNT_PICKER;
 
-public class ServerPreferencesFragment extends BasePreferenceFragment implements View.OnTouchListener,
-        GoogleAccountsManager.GoogleAccountSelectionListener, OnBackPressedListener {
+public class ServerPreferencesFragment extends BasePreferenceFragment
+        implements View.OnTouchListener, OnBackPressedListener {
     private static final String KNOWN_URL_LIST = "knownUrlList";
     protected EditTextPreference serverUrlPreference;
     protected EditTextPreference usernamePreference;
@@ -468,15 +468,11 @@ public class ServerPreferencesFragment extends BasePreferenceFragment implements
                 if (resultCode == RESULT_OK && data != null && data.getExtras() != null) {
                     String accountName = data.getStringExtra(AccountManager.KEY_ACCOUNT_NAME);
                     accountsManager.setSelectedAccountName(accountName);
+                    selectedGoogleAccountPreference.setSummary(accountName);
                 }
                 allowClickSelectedGoogleAccountPreference = true;
                 break;
         }
-    }
-
-    @Override
-    public void onGoogleAccountSelected(String accountName) {
-        selectedGoogleAccountPreference.setSummary(accountName);
     }
 
     /**
