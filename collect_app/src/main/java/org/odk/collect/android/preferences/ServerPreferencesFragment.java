@@ -72,10 +72,11 @@ import static org.odk.collect.android.preferences.GeneralKeys.KEY_SMS_PREFERENCE
 import static org.odk.collect.android.preferences.GeneralKeys.KEY_SUBMISSION_TRANSPORT_TYPE;
 import static org.odk.collect.android.preferences.GeneralKeys.KEY_SUBMISSION_URL;
 import static org.odk.collect.android.utilities.DialogUtils.showDialog;
-import static org.odk.collect.android.utilities.gdrive.GoogleAccountsManager.REQUEST_ACCOUNT_PICKER;
 
 public class ServerPreferencesFragment extends BasePreferenceFragment
         implements View.OnTouchListener, OnBackPressedListener {
+
+    private static final int REQUEST_ACCOUNT_PICKER = 1000;
     private static final String KNOWN_URL_LIST = "knownUrlList";
     protected EditTextPreference serverUrlPreference;
     protected EditTextPreference usernamePreference;
